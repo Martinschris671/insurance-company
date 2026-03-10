@@ -1,0 +1,977 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Premium Banking App</title>
+    <!-- Premium Font: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Include Phosphor Icons & GSAP -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+            },
+            colors: {
+              appBg: "#0b0e11",
+              surface: "#1e2329",
+              surfaceHover: "#2b3139",
+              brand: "#0047FF",
+              textMain: "#F5F5F5",
+              textMuted: "#848E9C",
+              danger: "#F6465D",
+              success: "#23C55E" /* Vibrant green matched to common bank UI */,
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      * {
+        -webkit-tap-highlight-color: transparent;
+        box-sizing: border-box;
+      }
+      body {
+        background-color: #0b0e11;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .no-tap-highlight {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+      }
+      .gpu-accel {
+        will-change: transform, opacity;
+      }
+
+      /* Animated Gradient Header */
+      @keyframes gradient-shift {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+      .bg-animated {
+        background: linear-gradient(-45deg, #0b0e11, #0047ff, #001f66, #0b0e11);
+        background-size: 300% 300%;
+        animation: gradient-shift 12s ease infinite;
+      }
+
+      /* Waving Hand Animation */
+      @keyframes wave-animation {
+        0% {
+          transform: rotate(0deg);
+        }
+        10% {
+          transform: rotate(14deg);
+        }
+        20% {
+          transform: rotate(-8deg);
+        }
+        30% {
+          transform: rotate(14deg);
+        }
+        40% {
+          transform: rotate(-4deg);
+        }
+        50% {
+          transform: rotate(10deg);
+        }
+        60% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(0deg);
+        }
+      }
+      .animate-wave {
+        display: inline-block;
+        animation: wave-animation 2.5s infinite;
+        transform-origin: 70% 70%;
+      }
+    </style>
+  </head>
+  <body class="text-textMain font-sans m-0 p-0 antialiased">
+    <!-- App Container -->
+    <div
+      class="max-w-[450px] mx-auto w-full h-[100dvh] bg-appBg relative flex flex-col overflow-hidden shadow-2xl border-x border-gray-900/50"
+    >
+      <main class="flex-1 overflow-y-auto no-scrollbar pb-0">
+        <!-- Header & Balance Section with Animated Blue Gradient -->
+        <div
+          class="bg-animated pt-2 pb-24 rounded-b-[40px] relative shadow-[0_12px_40px_-10px_rgba(0,71,255,0.3)]"
+        >
+          <!-- Top Navigation -->
+          <header
+            class="flex justify-between items-center px-6 mb-8 relative z-10"
+            style="padding-top: max(1rem, env(safe-area-inset-top))"
+          >
+            <!-- Header button matching action button design -->
+            <button
+              class="w-11 h-11 rounded-[18px] bg-[#1e2329]/90 border border-white/10 flex items-center justify-center text-white active:scale-90 transition-all duration-200 backdrop-blur-xl shadow-[0_8px_16px_-6px_rgba(0,0,0,0.5)]"
+            >
+              <i class="ph ph-list text-[22px]"></i>
+            </button>
+            <div
+              class="text-[16px] text-white font-semibold tracking-wide flex items-center gap-1.5 drop-shadow-sm"
+            >
+              Hi, Gasser! <span class="animate-wave text-[18px]">👋</span>
+            </div>
+            <!-- Header button matching action button design -->
+            <button
+              class="w-11 h-11 rounded-[18px] bg-[#1e2329]/90 border border-white/10 flex items-center justify-center text-white active:scale-90 transition-all duration-200 backdrop-blur-xl shadow-[0_8px_16px_-6px_rgba(0,0,0,0.5)] relative"
+            >
+              <i class="ph ph-bell text-[22px]"></i>
+            </button>
+          </header>
+
+          <!-- Balance Text & Animated Switch -->
+          <div
+            class="text-center px-5 relative z-10 flex flex-col items-center"
+          >
+            <div class="flex items-center justify-center gap-3 mb-2">
+              <p class="text-[14px] text-white/90 font-medium drop-shadow-sm">
+                Current Balance
+              </p>
+
+              <!-- Clean Currency Toggle -->
+              <div
+                class="bg-black/20 backdrop-blur-md border border-white/10 p-[3px] rounded-full flex relative cursor-pointer shadow-inner select-none active:scale-95 transition-transform"
+                onclick="toggleCurrency()"
+                style="width: 86px"
+              >
+                <!-- Sliding Knob -->
+                <div
+                  id="currency-slider"
+                  class="absolute w-[40px] h-[22px] bg-white rounded-full shadow-md transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] left-[3px] top-[3px]"
+                ></div>
+                <div
+                  class="relative z-10 w-[40px] h-[22px] flex items-center justify-center text-[11px] font-bold rounded-full transition-colors duration-300 text-brand"
+                  id="label-eur"
+                >
+                  EUR
+                </div>
+                <div
+                  class="relative z-10 w-[40px] h-[22px] flex items-center justify-center text-[11px] font-bold rounded-full transition-colors duration-300 text-white/80"
+                  id="label-btc"
+                >
+                  BTC
+                </div>
+              </div>
+            </div>
+
+            <!-- Balance Value (Wrapped in fixed height to prevent layout shifts during animation) -->
+            <div class="h-[48px] flex items-center justify-center mt-1">
+              <h1
+                class="text-[48px] font-extrabold tracking-tighter text-white leading-none balance-amount drop-shadow-lg gpu-accel"
+              >
+                €75,000.00
+              </h1>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons Container -->
+        <div class="px-5 -mt-12 relative z-20 mb-6">
+          <div
+            class="bg-[#1e2329]/95 backdrop-blur-xl rounded-[28px] p-5 flex justify-between items-center shadow-[0_16px_40px_-15px_rgba(0,0,0,0.6)] border border-white/10"
+          >
+            <!-- Button 1: Top Up -->
+            <div
+              class="flex flex-col items-center gap-2 cursor-pointer active:scale-90 transition-all duration-200 w-[64px]"
+            >
+              <div
+                class="w-[52px] h-[52px] rounded-[18px] bg-gradient-to-b from-white/10 to-transparent border border-white/5 flex justify-center items-center shadow-inner"
+              >
+                <i class="ph ph-plus text-textMain text-[24px]"></i>
+              </div>
+              <span class="text-[13px] font-medium text-textMain/90"
+                >Top up</span
+              >
+            </div>
+
+            <!-- Button 2: Withdraw -->
+            <div
+              class="flex flex-col items-center gap-2 cursor-pointer active:scale-90 transition-all duration-200 w-[64px]"
+            >
+              <div
+                class="w-[52px] h-[52px] rounded-[18px] bg-gradient-to-b from-white/10 to-transparent border border-white/5 flex justify-center items-center shadow-inner"
+              >
+                <i class="ph ph-arrow-up-right text-textMain text-[24px]"></i>
+              </div>
+              <span class="text-[13px] font-medium text-textMain/90"
+                >Withdraw</span
+              >
+            </div>
+
+            <!-- Button 3: Receive -->
+            <div
+              class="flex flex-col items-center gap-2 cursor-pointer active:scale-90 transition-all duration-200 w-[64px]"
+            >
+              <div
+                class="w-[52px] h-[52px] rounded-[18px] bg-gradient-to-b from-white/10 to-transparent border border-white/5 flex justify-center items-center shadow-inner"
+              >
+                <i class="ph ph-arrow-down-left text-textMain text-[24px]"></i>
+              </div>
+              <span class="text-[13px] font-medium text-textMain/90"
+                >Receive</span
+              >
+            </div>
+
+            <!-- Button 4: More -->
+            <div
+              class="flex flex-col items-center gap-2 cursor-pointer active:scale-90 transition-all duration-200 w-[64px]"
+            >
+              <div
+                class="w-[52px] h-[52px] rounded-[18px] bg-gradient-to-b from-white/10 to-transparent border border-white/5 flex justify-center items-center shadow-inner"
+              >
+                <i class="ph ph-squares-four text-textMain text-[24px]"></i>
+              </div>
+              <span class="text-[13px] font-medium text-textMain/90">More</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Perfect Bottom Sheet Transaction History -->
+        <div
+          id="transactions-sheet"
+          class="bg-[#14181d] rounded-t-[36px] flex-1 flex flex-col relative shadow-[0_-12px_40px_-10px_rgba(0,0,0,0.6)] border-t border-white/5 pb-32 z-10 transition-all duration-500 min-h-[420px]"
+        >
+          <!-- Interactive Sheet Handle -->
+          <div
+            class="w-full pt-4 pb-3 flex justify-center cursor-pointer active:opacity-60 transition-opacity"
+            id="sheet-drag-handle"
+          >
+            <div class="w-12 h-1.5 bg-white/15 rounded-full"></div>
+          </div>
+
+          <!-- Sheet Header & Functional Filter -->
+          <div
+            class="px-6 pb-4 flex justify-between items-center relative z-20"
+          >
+            <h2 class="text-[19px] font-bold text-white tracking-tight">
+              Transactions
+            </h2>
+
+            <div class="relative">
+              <!-- Filter Trigger -->
+              <button
+                id="filter-btn"
+                class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 active:scale-95 transition-all duration-200"
+              >
+                <span
+                  id="filter-label"
+                  class="text-[12.5px] font-semibold text-white/90"
+                  >All</span
+                >
+                <i class="ph-bold ph-caret-down text-[12px] text-white/50"></i>
+              </button>
+
+              <!-- Glassmorphism Filter Dropdown -->
+              <div
+                id="filter-dropdown"
+                class="absolute right-0 top-[calc(100%+8px)] w-[150px] bg-[#1e2329]/95 backdrop-blur-2xl border border-white/10 rounded-2xl p-1.5 shadow-[0_16px_40px_-10px_rgba(0,0,0,0.8)] opacity-0 pointer-events-none scale-95 origin-top-right transition-all duration-200 z-50"
+              >
+                <button
+                  class="filter-option w-full text-left px-3 py-2 rounded-xl hover:bg-white/10 text-[13px] font-semibold text-white transition-colors"
+                  data-filter="all"
+                >
+                  All
+                </button>
+                <button
+                  class="filter-option w-full text-left px-3 py-2 rounded-xl hover:bg-white/10 text-[13px] font-medium text-textMuted transition-colors"
+                  data-filter="transfer"
+                >
+                  Transfers
+                </button>
+                <button
+                  class="filter-option w-full text-left px-3 py-2 rounded-xl hover:bg-white/10 text-[13px] font-medium text-textMuted transition-colors"
+                  data-filter="credit"
+                >
+                  Credits
+                </button>
+                <button
+                  class="filter-option w-full text-left px-3 py-2 rounded-xl hover:bg-white/10 text-[13px] font-medium text-textMuted transition-colors"
+                  data-filter="reward"
+                >
+                  Rewards
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Transaction List Container -->
+          <div class="px-6" id="transaction-list-container">
+            <!-- Removed uppercase class -->
+            <h3
+              id="dynamic-date-header"
+              class="text-[14px] font-semibold text-textMuted/80 tracking-wide mb-5 border-b border-white/5 pb-3"
+            >
+              Today, March 9
+            </h3>
+
+            <!-- Item 1: Incoming Transfer -->
+            <div
+              class="transaction-item flex items-center justify-between mb-5 cursor-pointer active:scale-[0.98] transition-all duration-200"
+              data-category="transfer"
+            >
+              <div class="flex items-center gap-4">
+                <div
+                  class="w-[44px] h-[44px] rounded-[14px] bg-gradient-to-br from-brand/20 to-brand/5 flex justify-center items-center shrink-0 border border-brand/20 shadow-inner"
+                >
+                  <i class="ph-fill ph-wallet text-brand text-[22px]"></i>
+                </div>
+                <div class="flex flex-col">
+                  <span
+                    class="text-[15px] font-semibold text-textMain leading-tight mb-[3px]"
+                    >Incoming Transfer</span
+                  >
+                  <span class="text-[12.5px] font-medium text-textMuted"
+                    >Account **** 7824</span
+                  >
+                </div>
+              </div>
+              <div class="flex flex-col items-end">
+                <span class="text-[16px] font-bold text-success mb-[3px]"
+                  >+€50,000</span
+                >
+                <span
+                  class="transaction-time text-[12px] font-medium text-textMuted"
+                  >11:40 PM</span
+                >
+              </div>
+            </div>
+
+            <!-- Item 2: International Transfer -->
+            <div
+              class="transaction-item flex items-center justify-between mb-5 cursor-pointer active:scale-[0.98] transition-all duration-200"
+              data-category="transfer"
+            >
+              <div class="flex items-center gap-4">
+                <div
+                  class="w-[44px] h-[44px] rounded-[14px] bg-gradient-to-br from-[#9D4EDD]/20 to-[#9D4EDD]/5 flex justify-center items-center shrink-0 border border-[#9D4EDD]/20 shadow-inner"
+                >
+                  <i
+                    class="ph-fill ph-globe-hemisphere-west text-[#9D4EDD] text-[22px]"
+                  ></i>
+                </div>
+                <div class="flex flex-col">
+                  <span
+                    class="text-[15px] font-semibold text-textMain leading-tight mb-[3px]"
+                    >Int. Transfer</span
+                  >
+                  <span class="text-[12.5px] font-medium text-textMuted"
+                    >Account **** 4390</span
+                  >
+                </div>
+              </div>
+              <div class="flex flex-col items-end">
+                <span class="text-[16px] font-bold text-success mb-[3px]"
+                  >+€15,000</span
+                >
+                <span
+                  class="transaction-time text-[12px] font-medium text-textMuted"
+                  >11:40 PM</span
+                >
+              </div>
+            </div>
+
+            <!-- Item 3: Account Credit -->
+            <div
+              class="transaction-item flex items-center justify-between mb-5 cursor-pointer active:scale-[0.98] transition-all duration-200"
+              data-category="credit"
+            >
+              <div class="flex items-center gap-4">
+                <div
+                  class="w-[44px] h-[44px] rounded-[14px] bg-gradient-to-br from-[#20C997]/20 to-[#20C997]/5 flex justify-center items-center shrink-0 border border-[#20C997]/20 shadow-inner"
+                >
+                  <i class="ph-fill ph-bank text-[#20C997] text-[22px]"></i>
+                </div>
+                <div class="flex flex-col">
+                  <span
+                    class="text-[15px] font-semibold text-textMain leading-tight mb-[3px]"
+                    >Account Credit</span
+                  >
+                  <span class="text-[12.5px] font-medium text-textMuted"
+                    >Internal **** 0021</span
+                  >
+                </div>
+              </div>
+              <div class="flex flex-col items-end">
+                <span class="text-[16px] font-bold text-success mb-[3px]"
+                  >+€9,000</span
+                >
+                <span
+                  class="transaction-time text-[12px] font-medium text-textMuted"
+                  >11:40 PM</span
+                >
+              </div>
+            </div>
+
+            <!-- Item 4: Reward Bonus -->
+            <div
+              class="transaction-item flex items-center justify-between mb-2 cursor-pointer active:scale-[0.98] transition-all duration-200"
+              data-category="reward"
+            >
+              <div class="flex items-center gap-4">
+                <div
+                  class="w-[44px] h-[44px] rounded-[14px] bg-gradient-to-br from-[#F5B700]/20 to-[#F5B700]/5 flex justify-center items-center shrink-0 border border-[#F5B700]/20 shadow-inner"
+                >
+                  <i class="ph-fill ph-star text-[#F5B700] text-[22px]"></i>
+                </div>
+                <div class="flex flex-col">
+                  <span
+                    class="text-[15px] font-semibold text-textMain leading-tight mb-[3px]"
+                    >Reward Bonus</span
+                  >
+                  <span class="text-[12.5px] font-medium text-textMuted"
+                    >Promo **** 2024</span
+                  >
+                </div>
+              </div>
+              <div class="flex flex-col items-end">
+                <span class="text-[16px] font-bold text-success mb-[3px]"
+                  >+€1,000</span
+                >
+                <span
+                  class="transaction-time text-[12px] font-medium text-textMuted"
+                  >11:40 PM</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Re-designed Mature Liquid Glass Navigation Container -->
+      <div
+        class="absolute bottom-6 left-0 right-0 w-full px-5 z-50 pointer-events-none flex justify-center"
+      >
+        <!-- Matching the specific #1e2329/95 backdrop-blur-xl aesthetic requested -->
+        <nav
+          class="bg-[#1e2329]/95 backdrop-blur-xl w-full h-[76px] rounded-[32px] flex justify-between items-center px-3 relative pointer-events-auto border border-white/10 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.8)]"
+        >
+          <!-- Home Tab (Active) -->
+          <div
+            class="nav-item no-tap-highlight relative flex flex-col items-center justify-center h-full cursor-pointer group"
+            data-active="true"
+            data-type="tab"
+            style="flex: 1"
+          >
+            <div
+              class="relative w-full h-full flex items-center justify-center pointer-events-none"
+            >
+              <div
+                class="nav-content-active gpu-accel absolute flex flex-col items-center gap-1 opacity-100 scale-100 translate-y-0"
+              >
+                <i
+                  class="ph-fill ph-house text-[24px] text-white drop-shadow-md"
+                ></i>
+                <span class="text-[11px] font-semibold text-white">Home</span>
+              </div>
+              <div
+                class="nav-content-inactive gpu-accel absolute flex flex-col items-center gap-1 opacity-0 scale-95 translate-y-2"
+              >
+                <i
+                  class="ph ph-house text-[24px] text-textMuted group-hover:text-white/70 transition-colors"
+                ></i>
+                <span
+                  class="text-[11px] font-medium text-textMuted group-hover:text-white/70 transition-colors"
+                  >Home</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Activity Tab -->
+          <div
+            class="nav-item no-tap-highlight relative flex flex-col items-center justify-center h-full cursor-pointer group"
+            data-active="false"
+            data-type="tab"
+            style="flex: 1"
+          >
+            <div
+              class="relative w-full h-full flex items-center justify-center pointer-events-none"
+            >
+              <div
+                class="nav-content-active gpu-accel absolute flex flex-col items-center gap-1 opacity-0 scale-95 -translate-y-2"
+              >
+                <i
+                  class="ph-fill ph-chart-line-up text-[24px] text-white drop-shadow-md"
+                ></i>
+                <span class="text-[11px] font-semibold text-white"
+                  >Activity</span
+                >
+              </div>
+              <div
+                class="nav-content-inactive gpu-accel absolute flex flex-col items-center gap-1 opacity-100 scale-100 translate-y-0"
+              >
+                <i
+                  class="ph ph-chart-line-up text-[24px] text-textMuted group-hover:text-white/70 transition-colors"
+                ></i>
+                <span
+                  class="text-[11px] font-medium text-textMuted group-hover:text-white/70 transition-colors"
+                  >Activity</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Center Button (Swap) matched to Action Buttons -->
+          <div
+            class="nav-item no-tap-highlight relative h-full flex justify-center items-center cursor-pointer px-1"
+            data-active="false"
+            data-type="center"
+          >
+            <div
+              class="center-btn relative w-[52px] h-[52px] rounded-[18px] bg-[#2b3139]/80 bg-gradient-to-b from-white/10 to-transparent border border-white/10 flex justify-center items-center shadow-[0_8px_20px_-8px_rgba(0,0,0,0.5)] z-20 pointer-events-auto gpu-accel"
+            >
+              <i
+                class="center-icon ph ph-arrows-left-right text-white text-[24px] gpu-accel"
+              ></i>
+            </div>
+          </div>
+
+          <!-- Cards Tab -->
+          <div
+            class="nav-item no-tap-highlight relative flex flex-col items-center justify-center h-full cursor-pointer group"
+            data-active="false"
+            data-type="tab"
+            style="flex: 1"
+          >
+            <div
+              class="relative w-full h-full flex items-center justify-center pointer-events-none"
+            >
+              <div
+                class="nav-content-active gpu-accel absolute flex flex-col items-center gap-1 opacity-0 scale-95 -translate-y-2"
+              >
+                <i
+                  class="ph-fill ph-credit-card text-[24px] text-white drop-shadow-md"
+                ></i>
+                <span class="text-[11px] font-semibold text-white">Cards</span>
+              </div>
+              <div
+                class="nav-content-inactive gpu-accel absolute flex flex-col items-center gap-1 opacity-100 scale-100 translate-y-0"
+              >
+                <i
+                  class="ph ph-credit-card text-[24px] text-textMuted group-hover:text-white/70 transition-colors"
+                ></i>
+                <span
+                  class="text-[11px] font-medium text-textMuted group-hover:text-white/70 transition-colors"
+                  >Cards</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Profile Tab -->
+          <div
+            class="nav-item no-tap-highlight relative flex flex-col items-center justify-center h-full cursor-pointer group"
+            data-active="false"
+            data-type="tab"
+            style="flex: 1"
+          >
+            <div
+              class="relative w-full h-full flex items-center justify-center pointer-events-none"
+            >
+              <div
+                class="nav-content-active gpu-accel absolute flex flex-col items-center gap-1 opacity-0 scale-95 -translate-y-2"
+              >
+                <i
+                  class="ph-fill ph-user text-[24px] text-white drop-shadow-md"
+                ></i>
+                <span class="text-[11px] font-semibold text-white"
+                  >Profile</span
+                >
+              </div>
+              <div
+                class="nav-content-inactive gpu-accel absolute flex flex-col items-center gap-1 opacity-100 scale-100 translate-y-0"
+              >
+                <i
+                  class="ph ph-user text-[24px] text-textMuted group-hover:text-white/70 transition-colors"
+                ></i>
+                <span
+                  class="text-[11px] font-medium text-textMuted group-hover:text-white/70 transition-colors"
+                  >Profile</span
+                >
+              </div>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Super Smooth & Mature GSAP Logic & Dynamic Current Date/Time Saving -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // --- Dynamic Date & Time Logic ---
+        const dateHeaderEl = document.getElementById("dynamic-date-header");
+        const timeElements = document.querySelectorAll(".transaction-time");
+
+        // 1. Handle Date
+        if (dateHeaderEl) {
+          let savedDate = localStorage.getItem("appFirstLoginDate");
+          if (!savedDate) {
+            const now = new Date();
+            const options = { month: "long", day: "numeric" };
+            savedDate = now.toLocaleDateString("en-US", options);
+            localStorage.setItem("appFirstLoginDate", savedDate);
+          }
+          dateHeaderEl.innerText = `Today, ${savedDate}`;
+        }
+
+        // 2. Handle Time (make all transactions same time based on first load)
+        if (timeElements.length > 0) {
+          let savedTime = localStorage.getItem("appFirstLoginTime");
+          if (!savedTime) {
+            const now = new Date();
+            const timeOptions = {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+            };
+            savedTime = now.toLocaleTimeString("en-US", timeOptions);
+            localStorage.setItem("appFirstLoginTime", savedTime);
+          }
+          timeElements.forEach((el) => {
+            el.innerText = savedTime;
+          });
+        }
+
+        // --- Navigation Animation Logic ---
+        const navItems = document.querySelectorAll(".nav-item");
+        let activeTab = document.querySelector('.nav-item[data-active="true"]');
+        let isAnimating = false;
+
+        navItems.forEach((item) => {
+          item.addEventListener("click", (e) => {
+            if (item === activeTab || isAnimating) return;
+            isAnimating = true;
+
+            // 1. ANIMATE OUT THE OLD TAB/BUTTON
+            activeTab.setAttribute("data-active", "false");
+
+            if (activeTab.dataset.type === "tab") {
+              // Fade out active state and move slightly up
+              gsap.to(activeTab.querySelector(".nav-content-active"), {
+                opacity: 0,
+                y: -6,
+                scale: 0.95,
+                duration: 0.3,
+                ease: "power2.out",
+              });
+
+              // Fade in inactive state moving down to center
+              gsap.fromTo(
+                activeTab.querySelector(".nav-content-inactive"),
+                { opacity: 0, y: 6, scale: 0.95 },
+                {
+                  opacity: 1,
+                  y: 0,
+                  scale: 1,
+                  duration: 0.4,
+                  delay: 0.1,
+                  ease: "power2.out",
+                },
+              );
+            } else if (activeTab.dataset.type === "center") {
+              // Return center button to normal
+              gsap.to(activeTab.querySelector(".center-btn"), {
+                scale: 1,
+                boxShadow: "0 8px 20px -8px rgba(0,0,0,0.5)",
+                duration: 0.5,
+                ease: "back.out(1.5)",
+              });
+              gsap.to(activeTab.querySelector(".center-icon"), {
+                rotate: 0,
+                duration: 0.5,
+                ease: "power3.out",
+              });
+            }
+
+            // 2. ANIMATE IN THE NEW TAB/BUTTON
+            item.setAttribute("data-active", "true");
+
+            if (item.dataset.type === "tab") {
+              // Fade out inactive state moving down
+              gsap.to(item.querySelector(".nav-content-inactive"), {
+                opacity: 0,
+                y: 6,
+                scale: 0.95,
+                duration: 0.3,
+                ease: "power2.out",
+              });
+
+              // Fade in active state moving down to center
+              gsap.fromTo(
+                item.querySelector(".nav-content-active"),
+                { opacity: 0, y: -6, scale: 0.95 },
+                {
+                  opacity: 1,
+                  y: 0,
+                  scale: 1,
+                  duration: 0.4,
+                  delay: 0.1,
+                  ease: "back.out(1.2)",
+                  onComplete: () => (isAnimating = false),
+                },
+              );
+            } else if (item.dataset.type === "center") {
+              // Press effect for center button
+              gsap.to(item.querySelector(".center-btn"), {
+                scale: 0.9,
+                boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
+                duration: 0.45,
+                ease: "back.out(1.2)",
+                onComplete: () => (isAnimating = false),
+              });
+              gsap.to(item.querySelector(".center-icon"), {
+                rotate: 180,
+                duration: 0.45,
+                ease: "power3.inOut",
+              });
+            }
+
+            activeTab = item;
+          });
+        });
+
+        // --- Functional Bottom Sheet Drag/Click Interaction ---
+        const sheetHandle = document.getElementById("sheet-drag-handle");
+        const bottomSheet = document.getElementById("transactions-sheet");
+        let sheetExpanded = false;
+
+        sheetHandle.addEventListener("click", () => {
+          sheetExpanded = !sheetExpanded;
+          if (sheetExpanded) {
+            gsap.to(bottomSheet, {
+              minHeight: "82vh",
+              duration: 0.6,
+              ease: "power3.out",
+            });
+            bottomSheet.scrollIntoView({ behavior: "smooth", block: "start" });
+          } else {
+            gsap.to(bottomSheet, {
+              minHeight: "420px",
+              duration: 0.6,
+              ease: "power3.out",
+            });
+          }
+        });
+
+        // --- Functional Filter Logic & GSAP Stagger ---
+        const filterBtn = document.getElementById("filter-btn");
+        const filterDropdown = document.getElementById("filter-dropdown");
+        const filterOptions = document.querySelectorAll(".filter-option");
+        const filterLabel = document.getElementById("filter-label");
+        const transactionItems = document.querySelectorAll(".transaction-item");
+        let isDropdownOpen = false;
+
+        filterBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          isDropdownOpen = !isDropdownOpen;
+          if (isDropdownOpen) {
+            gsap.to(filterDropdown, {
+              opacity: 1,
+              scale: 1,
+              pointerEvents: "auto",
+              duration: 0.25,
+              ease: "back.out(1.5)",
+            });
+          } else {
+            gsap.to(filterDropdown, {
+              opacity: 0,
+              scale: 0.95,
+              pointerEvents: "none",
+              duration: 0.15,
+              ease: "power2.in",
+            });
+          }
+        });
+
+        document.addEventListener("click", () => {
+          if (isDropdownOpen) {
+            isDropdownOpen = false;
+            gsap.to(filterDropdown, {
+              opacity: 0,
+              scale: 0.95,
+              pointerEvents: "none",
+              duration: 0.15,
+              ease: "power2.in",
+            });
+          }
+        });
+
+        filterOptions.forEach((option) => {
+          option.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const filterValue = option.getAttribute("data-filter");
+            const filterText = option.innerText;
+
+            // Reset options text colors
+            filterOptions.forEach((opt) => {
+              opt.classList.replace("font-semibold", "font-medium");
+              opt.classList.replace("text-white", "text-textMuted");
+            });
+            // Highlight selected
+            option.classList.replace("font-medium", "font-semibold");
+            option.classList.replace("text-textMuted", "text-white");
+
+            // Update Label
+            filterLabel.innerText = filterText;
+
+            // Close Dropdown
+            isDropdownOpen = false;
+            gsap.to(filterDropdown, {
+              opacity: 0,
+              scale: 0.95,
+              pointerEvents: "none",
+              duration: 0.15,
+              ease: "power2.in",
+            });
+
+            // Animate List
+            let visibleCount = 0;
+            let delayCount = 0;
+
+            transactionItems.forEach((item) => {
+              const category = item.getAttribute("data-category");
+              if (filterValue === "all" || category === filterValue) {
+                item.style.display = "flex";
+                gsap.fromTo(
+                  item,
+                  { opacity: 0, y: 15 },
+                  {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.4,
+                    delay: delayCount * 0.08,
+                    ease: "power2.out",
+                  },
+                );
+                delayCount++;
+                visibleCount++;
+              } else {
+                item.style.display = "none";
+              }
+            });
+
+            // Empty State Logic
+            const listContainer = document.getElementById(
+              "transaction-list-container",
+            );
+            let emptyState = document.getElementById("empty-state");
+            if (visibleCount === 0) {
+              if (!emptyState) {
+                listContainer.insertAdjacentHTML(
+                  "beforeend",
+                  `<div id="empty-state" class="text-center py-12 opacity-0 flex flex-col items-center"><i class="ph ph-receipt text-[42px] text-white/20 mb-3"></i><p class="text-[14px] font-medium text-textMuted">No transactions found.</p></div>`,
+                );
+                emptyState = document.getElementById("empty-state");
+              }
+              emptyState.style.display = "flex";
+              gsap.to(emptyState, { opacity: 1, duration: 0.3 });
+            } else if (emptyState) {
+              emptyState.style.display = "none";
+            }
+          });
+        });
+      });
+    </script>
+
+    <!-- Balance & Currency Switch Logic -->
+    <script>
+      let isVisible = true;
+      let currentCurrency = "EUR";
+
+      // Values (Equivalent rates approx: 75,000 EUR ≈ 1.1852 BTC)
+      const balanceValues = {
+        EUR: "€75,000.00",
+        BTC: "1.1852 BTC",
+      };
+
+      // Handles actual currency swap UI logic & Text GSAP transition
+      function toggleCurrency() {
+        currentCurrency = currentCurrency === "EUR" ? "BTC" : "EUR";
+
+        // Target elements
+        const slider = document.getElementById("currency-slider");
+        const labelEur = document.getElementById("label-eur");
+        const labelBtc = document.getElementById("label-btc");
+
+        // Animate the Pill Switch
+        if (currentCurrency === "BTC") {
+          slider.style.transform = "translateX(40px)";
+          labelEur.classList.replace("text-brand", "text-white/80");
+          labelBtc.classList.replace("text-white/80", "text-brand");
+        } else {
+          slider.style.transform = "translateX(0)";
+          labelEur.classList.replace("text-white/80", "text-brand");
+          labelBtc.classList.replace("text-brand", "text-white/80");
+        }
+
+        updateBalanceDisplay(false);
+      }
+
+      // Hide / Show values capability preserved from original code
+      function toggleBalances() {
+        isVisible = !isVisible;
+        updateBalanceDisplay(true);
+      }
+
+      // Reusable function to handle text changes
+      function updateBalanceDisplay(isVisibilityToggle) {
+        const balanceEl = document.querySelector(".balance-amount");
+        if (!balanceEl) return;
+
+        const targetText = isVisible
+          ? balanceValues[currentCurrency]
+          : "••••••";
+
+        if (isVisibilityToggle) {
+          balanceEl.innerText = targetText;
+        } else {
+          // Smooth GSAP slide-up animation for currency swap
+          gsap.to(balanceEl, {
+            y: -15,
+            opacity: 0,
+            duration: 0.15,
+            ease: "power2.in",
+            onComplete: () => {
+              balanceEl.innerText = targetText;
+              gsap.fromTo(
+                balanceEl,
+                { y: 15, opacity: 0 },
+                { y: 0, opacity: 1, duration: 0.35, ease: "back.out(1.2)" },
+              );
+            },
+          });
+        }
+      }
+    </script>
+  </body>
+</html>
