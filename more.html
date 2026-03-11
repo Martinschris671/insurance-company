@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Insurance Company - More</title>
+    <!-- Premium Font: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Include Phosphor Icons & GSAP -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+            },
+            colors: {
+              appBg: "#0b0e11",
+              surface: "#1e2329",
+              surfaceHover: "#2b3139",
+              brand: "#0047FF",
+              textMain: "#F5F5F5",
+              textMuted: "#848E9C",
+              danger: "#F6465D",
+              warning: "#F5B700",
+              success: "#23C55E",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      * {
+        -webkit-tap-highlight-color: transparent;
+        box-sizing: border-box;
+      }
+      body {
+        background-color: #0b0e11;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .gpu-accel {
+        will-change: transform, opacity;
+      }
+
+      /* Animated Gradient Background */
+      @keyframes gradient-shift {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+      .bg-animated {
+        background: linear-gradient(-45deg, #0b0e11, #001f66, #0047ff, #0b0e11);
+        background-size: 300% 300%;
+        animation: gradient-shift 12s ease infinite;
+      }
+
+      /* Hide elements initially for GSAP */
+      #toast {
+        display: none;
+      }
+    </style>
+  </head>
+  <body
+    class="text-textMain font-sans m-0 p-0 antialiased flex justify-center items-center min-h-screen"
+  >
+    <!-- App Container -->
+    <div
+      class="max-w-[450px] mx-auto w-full h-[100dvh] bg-appBg relative flex flex-col overflow-hidden shadow-2xl border-x border-gray-900/50"
+    >
+      <!-- ========================================== -->
+      <!-- MORE / SETTINGS SCREEN                     -->
+      <!-- ========================================== -->
+      <div
+        class="flex-1 flex flex-col h-full overflow-y-auto no-scrollbar relative z-10"
+      >
+        <!-- Header -->
+        <div
+          class="bg-animated pt-2 pb-6 rounded-b-[32px] shadow-[0_12px_40px_-10px_rgba(0,71,255,0.2)] relative z-20 shrink-0"
+        >
+          <header
+            class="flex justify-between items-center px-6 mb-2 relative"
+            style="padding-top: max(1rem, env(safe-area-inset-top))"
+          >
+            <!-- Back Button with history.back() -->
+            <button
+              onclick="history.back()"
+              class="w-11 h-11 rounded-[18px] bg-[#1e2329]/90 border border-white/10 flex items-center justify-center text-white active:scale-90 transition-all duration-200 backdrop-blur-xl"
+            >
+              <i class="ph ph-caret-left text-[22px]"></i>
+            </button>
+            <h1 class="text-[17px] font-bold tracking-wide drop-shadow-sm">
+              Menu & Settings
+            </h1>
+            <!-- Dummy invisible button to perfectly center the title -->
+            <div class="w-11 h-11"></div>
+          </header>
+        </div>
+
+        <!-- Content Area -->
+        <div class="px-5 pt-8 pb-32 flex flex-col gap-6 relative">
+          <!-- Under Construction Hero -->
+          <div class="flex flex-col items-center justify-center mb-2 mt-2">
+            <!-- Animated Gear Icon -->
+            <div
+              class="relative w-24 h-24 flex items-center justify-center mb-5"
+            >
+              <div
+                class="absolute inset-0 bg-brand/30 rounded-full blur-xl animate-pulse"
+              ></div>
+              <div
+                class="w-20 h-20 bg-[#14181d] border border-brand/40 rounded-[24px] flex items-center justify-center relative z-10 shadow-[0_0_30px_rgba(0,71,255,0.3)] rotate-45 overflow-hidden"
+              >
+                <div class="-rotate-45 flex items-center justify-center">
+                  <i
+                    class="ph-fill ph-gear text-[42px] text-brand animate-[spin_4s_linear_infinite]"
+                  ></i>
+                </div>
+              </div>
+            </div>
+
+            <h2
+              class="text-[22px] font-extrabold text-white text-center tracking-tight mb-2"
+            >
+              Work in Progress
+            </h2>
+            <p
+              class="text-[14px] text-textMuted text-center px-2 leading-relaxed"
+            >
+              We're currently updating this section to bring you an even better
+              banking experience. Check back later!
+            </p>
+          </div>
+
+          <!-- Coming Soon Menu Items -->
+          <div class="flex flex-col gap-3">
+            <h3
+              class="text-[13px] font-semibold text-textMuted/80 ml-2 mb-1 uppercase tracking-wider"
+            >
+              Features Coming Soon
+            </h3>
+
+            <!-- Item 1: Security -->
+            <div
+              class="menu-item w-full bg-surface border border-white/5 rounded-[20px] p-4 flex items-center justify-between cursor-pointer opacity-80 transition-all duration-300"
+            >
+              <div class="flex items-center gap-4">
+                <div
+                  class="w-10 h-10 rounded-[14px] bg-success/10 flex items-center justify-center border border-success/20"
+                >
+                  <i
+                    class="ph-fill ph-shield-check text-success text-[20px]"
+                  ></i>
+                </div>
+                <div>
+                  <h4 class="text-[15px] font-bold text-white leading-tight">
+                    Security & Limits
+                  </h4>
+                  <p class="text-[12px] text-textMuted mt-0.5">
+                    Manage 2FA and thresholds
+                  </p>
+                </div>
+              </div>
+              <i class="ph ph-lock-key text-white/30 text-[20px]"></i>
+            </div>
+
+            <!-- Item 2: Support -->
+            <div
+              class="menu-item w-full bg-surface border border-white/5 rounded-[20px] p-4 flex items-center justify-between cursor-pointer opacity-80 transition-all duration-300"
+            >
+              <div class="flex items-center gap-4">
+                <div
+                  class="w-10 h-10 rounded-[14px] bg-brand/10 flex items-center justify-center border border-brand/20"
+                >
+                  <i class="ph-fill ph-headset text-brand text-[20px]"></i>
+                </div>
+                <div>
+                  <h4 class="text-[15px] font-bold text-white leading-tight">
+                    Priority Support
+                  </h4>
+                  <p class="text-[12px] text-textMuted mt-0.5">
+                    24/7 dedicated concierge
+                  </p>
+                </div>
+              </div>
+              <i class="ph ph-lock-key text-white/30 text-[20px]"></i>
+            </div>
+
+            <!-- Item 3: Statements -->
+            <div
+              class="menu-item w-full bg-surface border border-white/5 rounded-[20px] p-4 flex items-center justify-between cursor-pointer opacity-80 transition-all duration-300"
+            >
+              <div class="flex items-center gap-4">
+                <div
+                  class="w-10 h-10 rounded-[14px] bg-[#9D4EDD]/10 flex items-center justify-center border border-[#9D4EDD]/20"
+                >
+                  <i
+                    class="ph-fill ph-file-text text-[#9D4EDD] text-[20px]"
+                  ></i>
+                </div>
+                <div>
+                  <h4 class="text-[15px] font-bold text-white leading-tight">
+                    Statements & Taxes
+                  </h4>
+                  <p class="text-[12px] text-textMuted mt-0.5">
+                    Download official documents
+                  </p>
+                </div>
+              </div>
+              <i class="ph ph-lock-key text-white/30 text-[20px]"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- End of scrollable container -->
+
+      <!-- Sticky Bottom Button (Moved outside the scrolling flex-1 container) -->
+      <div
+        class="absolute bottom-0 left-0 w-full px-5 pt-12 pb-8 bg-gradient-to-t from-[#0b0e11] via-[#0b0e11] via-60% to-transparent z-20 pointer-events-none"
+      >
+        <button
+          onclick="history.back()"
+          class="pointer-events-auto w-full bg-surfaceHover border border-white/10 text-white font-bold text-[16px] py-4 rounded-[20px] shadow-lg active:scale-[0.98] transition-all duration-200"
+        >
+          Return to Dashboard
+        </button>
+      </div>
+
+      <!-- Custom Toast Notification -->
+      <div
+        id="toast"
+        class="absolute top-10 left-1/2 -translate-x-1/2 bg-[#1e2329] border border-brand/30 shadow-[0_10px_30px_rgba(0,71,255,0.2)] rounded-full px-5 py-3 flex items-center gap-2 z-50"
+      >
+        <i class="ph-fill ph-wrench text-brand text-[18px]"></i>
+        <span class="text-[13px] font-semibold text-white"
+          >Feature in development!</span
+        >
+      </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const menuItems = document.querySelectorAll(".menu-item");
+        const toast = document.getElementById("toast");
+        let toastTimeout;
+
+        menuItems.forEach((item) => {
+          item.addEventListener("click", () => {
+            // Haptic Shake Animation for disabled items
+            gsap.to(item, {
+              x: [-4, 4, -4, 4, 0],
+              duration: 0.3,
+              ease: "power2.inOut",
+            });
+
+            // Highlight border briefly to red/warning color
+            gsap.fromTo(
+              item,
+              { borderColor: "#F5B700" },
+              {
+                borderColor: "rgba(255,255,255,0.05)",
+                duration: 0.6,
+                delay: 0.2,
+              },
+            );
+
+            // Show Toast
+            clearTimeout(toastTimeout);
+            toast.style.display = "flex";
+
+            gsap.fromTo(
+              toast,
+              { y: -20, opacity: 0, scale: 0.9 },
+              {
+                y: 0,
+                opacity: 1,
+                scale: 1,
+                duration: 0.3,
+                ease: "back.out(1.5)",
+              },
+            );
+
+            toastTimeout = setTimeout(() => {
+              gsap.to(toast, {
+                y: -20,
+                opacity: 0,
+                scale: 0.9,
+                duration: 0.3,
+                ease: "power2.in",
+                onComplete: () => (toast.style.display = "none"),
+              });
+            }, 2000);
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

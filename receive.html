@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Insurance Company - Receive</title>
+    <!-- Premium Font: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Include Phosphor Icons & GSAP -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+            },
+            colors: {
+              appBg: "#0b0e11",
+              surface: "#1e2329",
+              surfaceHover: "#2b3139",
+              brand: "#0047FF",
+              textMain: "#F5F5F5",
+              textMuted: "#848E9C",
+              danger: "#F6465D",
+              warning: "#F5B700",
+              success: "#23C55E",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      * {
+        -webkit-tap-highlight-color: transparent;
+        box-sizing: border-box;
+      }
+      body {
+        background-color: #0b0e11;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .gpu-accel {
+        will-change: transform, opacity;
+      }
+
+      /* Animated Gradient Background */
+      @keyframes gradient-shift {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+      .bg-animated {
+        background: linear-gradient(-45deg, #0b0e11, #001f66, #0047ff, #0b0e11);
+        background-size: 300% 300%;
+        animation: gradient-shift 12s ease infinite;
+      }
+
+      /* Hide elements initially for GSAP */
+      #bank-view,
+      #toast {
+        display: none;
+      }
+
+      /* Pill Selector Active States */
+      .asset-pill.active {
+        background-color: #0047ff;
+        color: #ffffff;
+        border-color: #0047ff;
+      }
+      .asset-pill.active .pill-icon {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+    </style>
+  </head>
+  <body
+    class="text-textMain font-sans m-0 p-0 antialiased flex justify-center items-center min-h-screen"
+  >
+    <!-- App Container -->
+    <div
+      class="max-w-[450px] mx-auto w-full h-[100dvh] bg-appBg relative flex flex-col overflow-hidden shadow-2xl border-x border-gray-900/50"
+    >
+      <!-- ========================================== -->
+      <!-- RECEIVE SCREEN                             -->
+      <!-- ========================================== -->
+      <div
+        class="flex-1 flex flex-col h-full overflow-y-auto no-scrollbar relative z-10"
+      >
+        <!-- Header -->
+        <div
+          class="bg-animated pt-2 pb-6 rounded-b-[32px] shadow-[0_12px_40px_-10px_rgba(0,71,255,0.2)] relative z-20 shrink-0"
+        >
+          <header
+            class="flex justify-between items-center px-6 mb-4 relative"
+            style="padding-top: max(1rem, env(safe-area-inset-top))"
+          >
+            <!-- Back Button with history.back() -->
+            <button
+              onclick="history.back()"
+              class="w-11 h-11 rounded-[18px] bg-[#1e2329]/90 border border-white/10 flex items-center justify-center text-white active:scale-90 transition-all duration-200 backdrop-blur-xl"
+            >
+              <i class="ph ph-caret-left text-[22px]"></i>
+            </button>
+            <h1 class="text-[17px] font-bold tracking-wide drop-shadow-sm">
+              Receive Funds
+            </h1>
+            <button
+              class="w-11 h-11 rounded-[18px] bg-[#1e2329]/90 border border-white/10 flex items-center justify-center text-white active:scale-90 transition-all duration-200 backdrop-blur-xl"
+            >
+              <i class="ph ph-share-network text-[20px]"></i>
+            </button>
+          </header>
+
+          <!-- Toggle Switch (Crypto vs Bank) -->
+          <div class="px-6 mt-2">
+            <div
+              class="bg-black/40 backdrop-blur-md border border-white/10 p-1 rounded-2xl flex relative cursor-pointer shadow-inner w-full h-[46px]"
+              id="receive-toggle"
+            >
+              <!-- Sliding Background -->
+              <div
+                id="toggle-slider"
+                class="absolute w-[calc(50%-4px)] h-[36px] bg-[#1e2329] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.5)] border border-white/10 transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] left-1 top-1"
+              ></div>
+
+              <!-- Tab 1 -->
+              <div
+                class="relative z-10 w-1/2 h-full flex items-center justify-center gap-2 text-[13px] font-bold rounded-xl transition-colors duration-300 text-white"
+                id="tab-crypto"
+              >
+                <i class="ph-fill ph-currency-btc text-[16px]"></i> Crypto
+              </div>
+
+              <!-- Tab 2 -->
+              <div
+                class="relative z-10 w-1/2 h-full flex items-center justify-center gap-2 text-[13px] font-bold rounded-xl transition-colors duration-300 text-textMuted hover:text-white/80"
+                id="tab-bank"
+              >
+                <i class="ph-fill ph-bank text-[16px]"></i> Bank Transfer
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= CONTENT AREA ================= -->
+        <div
+          class="px-5 pt-6 pb-0 flex-1 grid grid-cols-1 grid-rows-1 items-start relative"
+        >
+          <!-- VIEW 1: CRYPTO -->
+          <div
+            id="crypto-view"
+            class="flex flex-col gap-6 w-full col-start-1 row-start-1 transition-all duration-300"
+          >
+            <!-- Horizontal Asset Selector (Perfectly Centered) -->
+            <div class="flex justify-center gap-3 w-full pb-2">
+              <!-- BTC -->
+              <div
+                class="asset-pill active shrink-0 flex items-center gap-2 bg-surface border border-white/10 px-4 py-2.5 rounded-full cursor-pointer transition-all duration-200"
+                data-asset="BTC"
+                data-network="Bitcoin"
+                data-address="bc1qvlse9lyrkws4dcx3e7q8gucaf72scdyt8t20rl"
+              >
+                <div
+                  class="pill-icon w-6 h-6 rounded-full bg-[#F7931A]/20 flex items-center justify-center transition-colors"
+                >
+                  <i
+                    class="ph-fill ph-currency-btc text-[14px] text-[#F7931A]"
+                  ></i>
+                </div>
+                <span class="text-[13px] font-bold">Bitcoin</span>
+              </div>
+
+              <!-- ETH -->
+              <div
+                class="asset-pill shrink-0 flex items-center gap-2 bg-surface border border-white/10 px-4 py-2.5 rounded-full text-textMuted cursor-pointer transition-all duration-200 hover:bg-surfaceHover"
+                data-asset="ETH"
+                data-network="ERC-20"
+                data-address="0x713930976C4ab8D5AAd6fB394d40F02687b54C89"
+              >
+                <div
+                  class="pill-icon w-6 h-6 rounded-full bg-[#627EEA]/20 flex items-center justify-center transition-colors"
+                >
+                  <i
+                    class="ph-fill ph-currency-eth text-[14px] text-[#627EEA]"
+                  ></i>
+                </div>
+                <span class="text-[13px] font-bold">Ethereum</span>
+              </div>
+
+              <!-- USDT -->
+              <div
+                class="asset-pill shrink-0 flex items-center gap-2 bg-surface border border-white/10 px-4 py-2.5 rounded-full text-textMuted cursor-pointer transition-all duration-200 hover:bg-surfaceHover"
+                data-asset="USDT"
+                data-network="ERC-20"
+                data-address="0x713930976C4ab8D5AAd6fB394d40F02687b54C89"
+              >
+                <div
+                  class="pill-icon w-6 h-6 rounded-full bg-[#26A17B]/20 flex items-center justify-center transition-colors"
+                >
+                  <i
+                    class="ph-fill ph-currency-dollar text-[14px] text-[#26A17B]"
+                  ></i>
+                </div>
+                <span class="text-[13px] font-bold">USDT</span>
+              </div>
+            </div>
+
+            <!-- QR Code Box -->
+            <div class="flex flex-col items-center">
+              <div
+                class="w-[240px] h-[240px] bg-white rounded-[32px] p-5 shadow-[0_0_40px_-10px_rgba(0,71,255,0.2)] flex items-center justify-center relative mb-4"
+              >
+                <img
+                  id="qr-code-img"
+                  src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=bc1qvlse9lyrkws4dcx3e7q8gucaf72scdyt8t20rl&color=000000&bgcolor=ffffff"
+                  alt="QR Code"
+                  class="w-full h-full object-contain mix-blend-multiply transition-opacity duration-300"
+                />
+                <div
+                  class="absolute inset-0 border border-white/10 rounded-[32px] pointer-events-none"
+                ></div>
+                <!-- Center Logo Overlay -->
+                <div
+                  class="absolute w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md p-1"
+                >
+                  <div
+                    id="qr-center-icon"
+                    class="w-full h-full rounded-full bg-[#F7931A]/20 flex items-center justify-center"
+                  >
+                    <i
+                      class="ph-fill ph-currency-btc text-[#F7931A] text-[20px]"
+                    ></i>
+                  </div>
+                </div>
+              </div>
+              <p class="text-[14px] text-textMuted font-medium text-center">
+                Scan to pay
+                <span id="display-asset" class="text-white font-bold">BTC</span>
+              </p>
+            </div>
+
+            <!-- Address Copy Box -->
+            <div
+              class="w-full bg-surface border border-white/5 rounded-[24px] p-4 shadow-lg"
+            >
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-[13px] text-textMuted font-medium ml-1"
+                  >Wallet Address</span
+                >
+                <span
+                  class="text-[11px] font-bold bg-[#14181d] px-2 py-1 rounded-md text-brand"
+                  id="display-network"
+                  >Network: Bitcoin</span
+                >
+              </div>
+              <div
+                class="w-full bg-[#14181d] border border-white/10 rounded-[16px] p-3 pl-4 flex items-center justify-between gap-3 group"
+              >
+                <p
+                  id="display-address"
+                  class="text-[13px] font-medium text-white/90 truncate font-mono tracking-wide"
+                >
+                  bc1qvlse9lyrkws4dcx3e7q8gucaf72scdyt8t20rl
+                </p>
+                <button
+                  class="btn-copy shrink-0 bg-white/10 hover:bg-white/20 w-10 h-10 rounded-xl flex items-center justify-center transition-colors active:scale-90"
+                  data-copy-target="display-address"
+                  data-copy-name="Address"
+                >
+                  <i class="ph ph-copy text-[18px] text-white"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Warning -->
+            <p
+              class="text-[12px] text-warning/80 text-center px-4 flex items-center justify-center gap-1.5"
+            >
+              <i class="ph-fill ph-warning-circle"></i> Send only
+              <span id="warning-asset" class="font-bold text-warning">BTC</span>
+              to this address.
+            </p>
+          </div>
+
+          <!-- VIEW 2: BANK TRANSFER (Hidden by default) -->
+          <div
+            id="bank-view"
+            class="flex flex-col gap-5 w-full col-start-1 row-start-1 opacity-0 translate-x-10 transition-all duration-300 pointer-events-none"
+          >
+            <div
+              class="bg-surface border border-white/10 rounded-[24px] p-5 shadow-lg relative overflow-hidden"
+            >
+              <!-- Decorative background element -->
+              <div
+                class="absolute -right-10 -top-10 w-32 h-32 bg-brand/10 rounded-full blur-2xl pointer-events-none"
+              ></div>
+
+              <h2
+                class="text-[18px] font-bold text-white mb-6 flex items-center gap-2"
+              >
+                <i class="ph-fill ph-bank text-brand"></i> EUR Account Details
+              </h2>
+
+              <div class="flex flex-col gap-5 relative z-10">
+                <!-- Row 1 -->
+                <div>
+                  <p class="text-[12px] text-textMuted mb-1 font-medium">
+                    Beneficiary Name
+                  </p>
+                  <p class="text-[15px] font-bold text-white tracking-wide">
+                    Gasser Account
+                  </p>
+                </div>
+
+                <!-- Row 2 -->
+                <div>
+                  <p class="text-[12px] text-textMuted mb-1 font-medium">
+                    IBAN
+                  </p>
+                  <div
+                    class="flex justify-between items-center bg-[#14181d] border border-white/5 rounded-xl p-3"
+                  >
+                    <p
+                      id="display-iban"
+                      class="text-[14px] font-mono font-medium text-white tracking-wider"
+                    >
+                      DE89 3704 0044 0532 0130 00
+                    </p>
+                    <button
+                      class="btn-copy shrink-0 bg-transparent active:scale-90 transition-transform"
+                      data-copy-target="display-iban"
+                      data-copy-name="IBAN"
+                    >
+                      <i class="ph ph-copy text-[20px] text-brand"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Row 3 -->
+                <div>
+                  <p class="text-[12px] text-textMuted mb-1 font-medium">
+                    BIC / SWIFT
+                  </p>
+                  <div
+                    class="flex justify-between items-center bg-[#14181d] border border-white/5 rounded-xl p-3"
+                  >
+                    <p
+                      id="display-swift"
+                      class="text-[14px] font-mono font-medium text-white tracking-wider"
+                    >
+                      GENXDEF1XXX
+                    </p>
+                    <button
+                      class="btn-copy shrink-0 bg-transparent active:scale-90 transition-transform"
+                      data-copy-target="display-swift"
+                      data-copy-name="SWIFT"
+                    >
+                      <i class="ph ph-copy text-[20px] text-brand"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Row 4 -->
+                <div>
+                  <p class="text-[12px] text-textMuted mb-1 font-medium">
+                    Bank Name
+                  </p>
+                  <p class="text-[14px] font-medium text-white/90">
+                    Insurance Bank
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="p-4 rounded-[20px] bg-[#14181d] border border-white/5 flex gap-3 items-start"
+            >
+              <i class="ph-fill ph-info text-brand text-[20px] mt-0.5"></i>
+              <p class="text-[12px] text-textMuted leading-relaxed">
+                Transfers via SEPA usually take
+                <span class="text-white font-medium">1-2 business days</span>.
+                Make sure the name on the originating account matches your
+                verified identity.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sticky Bottom Button -->
+        <div
+          class="sticky bottom-0 left-0 w-full px-5 pt-12 pb-8 bg-gradient-to-t from-[#0b0e11] via-[#0b0e11] via-60% to-transparent z-20 mt-auto pointer-events-none"
+        >
+          <button
+            id="btn-share"
+            class="pointer-events-auto w-full bg-brand hover:bg-brand/90 text-white font-bold text-[16px] py-4 rounded-[20px] shadow-[0_8px_20px_-6px_rgba(0,71,255,0.6)] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
+          >
+            <i class="ph-bold ph-share-network text-[18px]"></i> Share Details
+          </button>
+        </div>
+      </div>
+
+      <!-- Custom Toast Notification -->
+      <div
+        id="toast"
+        class="absolute top-10 left-1/2 -translate-x-1/2 bg-[#1e2329] border border-white/10 shadow-2xl rounded-full px-5 py-3 flex items-center gap-2 z-50"
+      >
+        <i class="ph-fill ph-check-circle text-success text-[18px]"></i>
+        <span id="toast-text" class="text-[13px] font-semibold text-white"
+          >Copied to clipboard!</span
+        >
+      </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // --- 1. View Toggle Logic (Crypto vs Bank) ---
+        const toggleContainer = document.getElementById("receive-toggle");
+        const toggleSlider = document.getElementById("toggle-slider");
+        const tabCrypto = document.getElementById("tab-crypto");
+        const tabBank = document.getElementById("tab-bank");
+
+        const cryptoView = document.getElementById("crypto-view");
+        const bankView = document.getElementById("bank-view");
+
+        let isCryptoView = true;
+
+        toggleContainer.addEventListener("click", (e) => {
+          // Determine which half was clicked based on click X position relative to container
+          const rect = toggleContainer.getBoundingClientRect();
+          const clickX = e.clientX - rect.left;
+          const isClickingBank = clickX > rect.width / 2;
+
+          if (isClickingBank && isCryptoView) {
+            // Switch to Bank
+            isCryptoView = false;
+            toggleSlider.style.transform = "translateX(100%)";
+
+            tabCrypto.classList.replace("text-white", "text-textMuted");
+            tabBank.classList.replace("text-textMuted", "text-white");
+
+            // Animate Views
+            gsap.to(cryptoView, {
+              x: -20,
+              opacity: 0,
+              duration: 0.25,
+              onComplete: () => {
+                cryptoView.style.pointerEvents = "none";
+                cryptoView.style.display = "none"; // Optional, absolute positioning handles layout
+              },
+            });
+
+            bankView.style.display = "flex";
+            gsap.fromTo(
+              bankView,
+              { x: 20, opacity: 0 },
+              {
+                x: 0,
+                opacity: 1,
+                duration: 0.3,
+                delay: 0.1,
+                pointerEvents: "auto",
+              },
+            );
+          } else if (!isClickingBank && !isCryptoView) {
+            // Switch to Crypto
+            isCryptoView = true;
+            toggleSlider.style.transform = "translateX(0)";
+
+            tabBank.classList.replace("text-white", "text-textMuted");
+            tabCrypto.classList.replace("text-textMuted", "text-white");
+
+            // Animate Views
+            gsap.to(bankView, {
+              x: 20,
+              opacity: 0,
+              duration: 0.25,
+              onComplete: () => {
+                bankView.style.pointerEvents = "none";
+                bankView.style.display = "none";
+              },
+            });
+
+            cryptoView.style.display = "flex";
+            gsap.fromTo(
+              cryptoView,
+              { x: -20, opacity: 0 },
+              {
+                x: 0,
+                opacity: 1,
+                duration: 0.3,
+                delay: 0.1,
+                pointerEvents: "auto",
+              },
+            );
+          }
+        });
+
+        // --- 2. Crypto Asset Selector Logic ---
+        const assetPills = document.querySelectorAll(".asset-pill");
+        const qrCodeImg = document.getElementById("qr-code-img");
+        const displayAsset = document.getElementById("display-asset");
+        const displayNetwork = document.getElementById("display-network");
+        const displayAddress = document.getElementById("display-address");
+        const warningAsset = document.getElementById("warning-asset");
+        const qrCenterIcon = document.getElementById("qr-center-icon");
+
+        const coinColors = {
+          BTC: {
+            bg: "#F7931A",
+            text: "text-[#F7931A]",
+            icon: "ph-currency-btc",
+          },
+          ETH: {
+            bg: "#627EEA",
+            text: "text-[#627EEA]",
+            icon: "ph-currency-eth",
+          },
+          USDT: {
+            bg: "#26A17B",
+            text: "text-[#26A17B]",
+            icon: "ph-currency-dollar",
+          },
+        };
+
+        assetPills.forEach((pill) => {
+          pill.addEventListener("click", () => {
+            if (pill.classList.contains("active")) return;
+
+            // Reset all pills
+            assetPills.forEach((p) => {
+              p.classList.remove("active", "text-white");
+              p.classList.add("text-textMuted", "hover:bg-surfaceHover");
+              p.querySelector(".pill-icon").style.backgroundColor = "";
+            });
+
+            // Activate clicked pill
+            pill.classList.add("active", "text-white");
+            pill.classList.remove("text-textMuted", "hover:bg-surfaceHover");
+
+            // Extract Data
+            const asset = pill.getAttribute("data-asset");
+            const network = pill.getAttribute("data-network");
+            const address = pill.getAttribute("data-address");
+            const colorConfig = coinColors[asset];
+
+            // Update UI Elements
+            displayAsset.innerText = asset;
+            displayNetwork.innerText = `Network: ${network}`;
+            displayAddress.innerText = address;
+            warningAsset.innerText = asset;
+
+            // Update QR center icon
+            qrCenterIcon.style.backgroundColor = `${colorConfig.bg}33`; // 20% opacity hex
+            qrCenterIcon.innerHTML = `<i class="ph-fill ${colorConfig.icon} ${colorConfig.text} text-[20px]"></i>`;
+
+            // Fade QR out and in
+            gsap.to(qrCodeImg, {
+              opacity: 0.2,
+              duration: 0.2,
+              onComplete: () => {
+                qrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${address}&color=000000&bgcolor=ffffff`;
+                qrCodeImg.onload = () =>
+                  gsap.to(qrCodeImg, { opacity: 1, duration: 0.3 });
+              },
+            });
+          });
+        });
+
+        // --- 3. Universal Copy Logic ---
+        const copyButtons = document.querySelectorAll(".btn-copy");
+        const toast = document.getElementById("toast");
+        const toastText = document.getElementById("toast-text");
+        let toastTimeout;
+
+        copyButtons.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const targetId = btn.getAttribute("data-copy-target");
+            const name = btn.getAttribute("data-copy-name");
+            const textToCopy = document.getElementById(targetId).innerText;
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+              // Button specific visual feedback (pop effect)
+              gsap.fromTo(
+                btn,
+                { scale: 0.8 },
+                { scale: 1, duration: 0.3, ease: "back.out(2)" },
+              );
+
+              // Change icon color temporarily if it's not the crypto address button
+              const icon = btn.querySelector("i");
+              const origClass = icon.className;
+              icon.classList.replace("text-white", "text-success");
+              icon.classList.replace("text-brand", "text-success");
+              icon.classList.replace("ph-copy", "ph-check");
+
+              setTimeout(() => {
+                icon.className = origClass;
+              }, 2000);
+
+              // Show Toast
+              toastText.innerText = `${name} copied!`;
+              clearTimeout(toastTimeout);
+              toast.style.display = "flex";
+
+              gsap.fromTo(
+                toast,
+                { y: -20, opacity: 0, scale: 0.9 },
+                {
+                  y: 0,
+                  opacity: 1,
+                  scale: 1,
+                  duration: 0.3,
+                  ease: "back.out(1.5)",
+                },
+              );
+
+              toastTimeout = setTimeout(() => {
+                gsap.to(toast, {
+                  y: -20,
+                  opacity: 0,
+                  scale: 0.9,
+                  duration: 0.3,
+                  ease: "power2.in",
+                  onComplete: () => (toast.style.display = "none"),
+                });
+              }, 2500);
+            });
+          });
+        });
+
+        // --- 4. Share Button Logic ---
+        const btnShare = document.getElementById("btn-share");
+        btnShare.addEventListener("click", () => {
+          let shareText = "";
+
+          if (isCryptoView) {
+            const activeAsset = document
+              .querySelector(".asset-pill.active")
+              .getAttribute("data-asset");
+            const activeAddress =
+              document.getElementById("display-address").innerText;
+            shareText = `Here is my ${activeAsset} deposit address:\n${activeAddress}`;
+          } else {
+            const iban = document.getElementById("display-iban").innerText;
+            const swift = document.getElementById("display-swift").innerText;
+            shareText = `Here are my bank details:\nName: Gasser Account\nIBAN: ${iban}\nBIC/SWIFT: ${swift}`;
+          }
+
+          // Check if native share is supported (mobile devices usually)
+          if (navigator.share) {
+            navigator
+              .share({
+                title: "My Payment Details",
+                text: shareText,
+              })
+              .catch(console.error);
+          } else {
+            // Fallback to clipboard copy
+            navigator.clipboard.writeText(shareText).then(() => {
+              toastText.innerText = `Details copied to share!`;
+              toast.style.display = "flex";
+              gsap.fromTo(
+                toast,
+                { y: -20, opacity: 0 },
+                { y: 0, opacity: 1, duration: 0.3 },
+              );
+              setTimeout(
+                () => gsap.to(toast, { opacity: 0, y: -20, duration: 0.3 }),
+                2500,
+              );
+            });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

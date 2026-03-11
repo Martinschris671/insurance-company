@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
-    <title>Premium Banking App</title>
+    <title>Insurance Company - Dashboard</title>
     <!-- Premium Font: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,6 +17,8 @@
     <!-- Include Phosphor Icons & GSAP -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <!-- Include Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -131,15 +133,17 @@
             style="padding-top: max(1rem, env(safe-area-inset-top))"
           >
             <!-- Header button matching action button design -->
-            <button
-              class="w-11 h-11 rounded-[18px] bg-[#1e2329]/90 border border-white/10 flex items-center justify-center text-white active:scale-90 transition-all duration-200 backdrop-blur-xl shadow-[0_8px_16px_-6px_rgba(0,0,0,0.5)]"
-            >
-              <i class="ph ph-list text-[22px]"></i>
-            </button>
+            <a href="more.html">
+              <button
+                class="w-11 h-11 rounded-[18px] bg-[#1e2329]/90 border border-white/10 flex items-center justify-center text-white active:scale-90 transition-all duration-200 backdrop-blur-xl shadow-[0_8px_16px_-6px_rgba(0,0,0,0.5)]"
+              >
+                <i class="ph ph-list text-[22px]"></i></button
+            ></a>
             <div
               class="text-[16px] text-white font-semibold tracking-wide flex items-center gap-1.5 drop-shadow-sm"
             >
-              Hi, Gasser! <span class="animate-wave text-[18px]">👋</span>
+              Hi, <span id="user-first-name">...</span>!
+              <span class="animate-wave text-[18px]">👋</span>
             </div>
             <!-- Header button matching action button design -->
             <button
@@ -201,58 +205,69 @@
             class="bg-[#1e2329]/95 backdrop-blur-xl rounded-[28px] p-5 flex justify-between items-center shadow-[0_16px_40px_-15px_rgba(0,0,0,0.6)] border border-white/10"
           >
             <!-- Button 1: Top Up -->
-            <div
-              class="flex flex-col items-center gap-2 cursor-pointer active:scale-90 transition-all duration-200 w-[64px]"
+            <a href="topup.html"
+              ><div
+                class="flex flex-col items-center gap-2 cursor-pointer active:scale-90 transition-all duration-200 w-[64px]"
+              >
+                <div
+                  class="w-[52px] h-[52px] rounded-[18px] bg-gradient-to-b from-white/10 to-transparent border border-white/5 flex justify-center items-center shadow-inner"
+                >
+                  <i class="ph ph-plus text-textMain text-[24px]"></i>
+                </div>
+                <span class="text-[13px] font-medium text-textMain/90"
+                  >Top up</span
+                >
+              </div></a
             >
-              <div
-                class="w-[52px] h-[52px] rounded-[18px] bg-gradient-to-b from-white/10 to-transparent border border-white/5 flex justify-center items-center shadow-inner"
-              >
-                <i class="ph ph-plus text-textMain text-[24px]"></i>
-              </div>
-              <span class="text-[13px] font-medium text-textMain/90"
-                >Top up</span
-              >
-            </div>
-
             <!-- Button 2: Withdraw -->
-            <div
-              class="flex flex-col items-center gap-2 cursor-pointer active:scale-90 transition-all duration-200 w-[64px]"
-            >
+            <a href="deposit.html">
               <div
-                class="w-[52px] h-[52px] rounded-[18px] bg-gradient-to-b from-white/10 to-transparent border border-white/5 flex justify-center items-center shadow-inner"
+                class="flex flex-col items-center gap-2 cursor-pointer active:scale-90 transition-all duration-200 w-[64px]"
               >
-                <i class="ph ph-arrow-up-right text-textMain text-[24px]"></i>
-              </div>
-              <span class="text-[13px] font-medium text-textMain/90"
-                >Withdraw</span
-              >
-            </div>
+                <div
+                  class="w-[52px] h-[52px] rounded-[18px] bg-gradient-to-b from-white/10 to-transparent border border-white/5 flex justify-center items-center shadow-inner"
+                >
+                  <i class="ph ph-arrow-up-right text-textMain text-[24px]"></i>
+                </div>
+                <span class="text-[13px] font-medium text-textMain/90"
+                  >Withdraw</span
+                >
+              </div></a
+            >
 
             <!-- Button 3: Receive -->
-            <div
-              class="flex flex-col items-center gap-2 cursor-pointer active:scale-90 transition-all duration-200 w-[64px]"
-            >
+            <a href="receive.html">
               <div
-                class="w-[52px] h-[52px] rounded-[18px] bg-gradient-to-b from-white/10 to-transparent border border-white/5 flex justify-center items-center shadow-inner"
+                class="flex flex-col items-center gap-2 cursor-pointer active:scale-90 transition-all duration-200 w-[64px]"
               >
-                <i class="ph ph-arrow-down-left text-textMain text-[24px]"></i>
-              </div>
-              <span class="text-[13px] font-medium text-textMain/90"
-                >Receive</span
-              >
-            </div>
+                <div
+                  class="w-[52px] h-[52px] rounded-[18px] bg-gradient-to-b from-white/10 to-transparent border border-white/5 flex justify-center items-center shadow-inner"
+                >
+                  <i
+                    class="ph ph-arrow-down-left text-textMain text-[24px]"
+                  ></i>
+                </div>
+                <span class="text-[13px] font-medium text-textMain/90"
+                  >Receive</span
+                >
+              </div></a
+            >
 
             <!-- Button 4: More -->
-            <div
-              class="flex flex-col items-center gap-2 cursor-pointer active:scale-90 transition-all duration-200 w-[64px]"
-            >
+            <a href="more.html">
               <div
-                class="w-[52px] h-[52px] rounded-[18px] bg-gradient-to-b from-white/10 to-transparent border border-white/5 flex justify-center items-center shadow-inner"
+                class="flex flex-col items-center gap-2 cursor-pointer active:scale-90 transition-all duration-200 w-[64px]"
               >
-                <i class="ph ph-squares-four text-textMain text-[24px]"></i>
-              </div>
-              <span class="text-[13px] font-medium text-textMain/90">More</span>
-            </div>
+                <div
+                  class="w-[52px] h-[52px] rounded-[18px] bg-gradient-to-b from-white/10 to-transparent border border-white/5 flex justify-center items-center shadow-inner"
+                >
+                  <i class="ph ph-squares-four text-textMain text-[24px]"></i>
+                </div>
+                <span class="text-[13px] font-medium text-textMain/90"
+                  >More</span
+                >
+              </div></a
+            >
           </div>
         </div>
 
@@ -361,7 +376,7 @@
                 >
                 <span
                   class="transaction-time text-[12px] font-medium text-textMuted"
-                  >11:40 PM</span
+                  >--:--</span
                 >
               </div>
             </div>
@@ -395,7 +410,7 @@
                 >
                 <span
                   class="transaction-time text-[12px] font-medium text-textMuted"
-                  >11:40 PM</span
+                  >--:--</span
                 >
               </div>
             </div>
@@ -427,7 +442,7 @@
                 >
                 <span
                   class="transaction-time text-[12px] font-medium text-textMuted"
-                  >11:40 PM</span
+                  >--:--</span
                 >
               </div>
             </div>
@@ -459,7 +474,7 @@
                 >
                 <span
                   class="transaction-time text-[12px] font-medium text-textMuted"
-                  >11:40 PM</span
+                  >--:--</span
                 >
               </div>
             </div>
@@ -628,39 +643,67 @@
     <!-- Super Smooth & Mature GSAP Logic & Dynamic Current Date/Time Saving -->
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        // --- Dynamic Date & Time Logic ---
-        const dateHeaderEl = document.getElementById("dynamic-date-header");
-        const timeElements = document.querySelectorAll(".transaction-time");
+        // --- Supabase User Data & Timestamp Logic ---
+        const BROKER_URL = "https://odhxccqsrvkfwvpjjmof.supabase.co";
+        const BROKER_KEY =
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kaHhjY3FzcnZrZnd2cGpqbW9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDk5NzAsImV4cCI6MjA4NzkyNTk3MH0.rjyZ-GLvt2o-nwOWeUFWkdbzUG4ZXZOilYw8PHKovs8";
+        const supabaseClient = window.supabase.createClient(
+          BROKER_URL,
+          BROKER_KEY,
+        );
 
-        // 1. Handle Date
-        if (dateHeaderEl) {
-          let savedDate = localStorage.getItem("appFirstLoginDate");
-          if (!savedDate) {
-            const now = new Date();
-            const options = { month: "long", day: "numeric" };
-            savedDate = now.toLocaleDateString("en-US", options);
-            localStorage.setItem("appFirstLoginDate", savedDate);
-          }
-          dateHeaderEl.innerText = `Today, ${savedDate}`;
-        }
+        // Fetch User Session to populate Name and Timestamp dynamically
+        supabaseClient.auth.getSession().then(({ data: { session } }) => {
+          if (session && session.user) {
+            // 1. Dynamic First Name Injection
+            const fullName = session.user.user_metadata?.full_name || "User";
+            const firstName = fullName.split(" ")[0]; // Extract just the first name
+            const nameEl = document.getElementById("user-first-name");
+            if (nameEl) nameEl.innerText = firstName;
 
-        // 2. Handle Time (make all transactions same time based on first load)
-        if (timeElements.length > 0) {
-          let savedTime = localStorage.getItem("appFirstLoginTime");
-          if (!savedTime) {
-            const now = new Date();
+            // 2. Dynamic Transaction Date/Time based on account creation
+            const signupDate = new Date(session.user.created_at);
+
+            // Update the date header
+            const dateHeaderEl = document.getElementById("dynamic-date-header");
+            if (dateHeaderEl) {
+              const dateOptions = { month: "long", day: "numeric" };
+              dateHeaderEl.innerText = `Today, ${signupDate.toLocaleDateString("en-US", dateOptions)}`;
+            }
+
+            // Update all individual transaction times to the exact signup time
+            const timeElements = document.querySelectorAll(".transaction-time");
             const timeOptions = {
               hour: "numeric",
               minute: "2-digit",
               hour12: true,
             };
-            savedTime = now.toLocaleTimeString("en-US", timeOptions);
-            localStorage.setItem("appFirstLoginTime", savedTime);
+            const formattedTime = signupDate.toLocaleTimeString(
+              "en-US",
+              timeOptions,
+            );
+
+            timeElements.forEach((el) => {
+              el.innerText = formattedTime;
+            });
+          } else {
+            // Fallback just in case user is not logged in
+            const nameEl = document.getElementById("user-first-name");
+            if (nameEl) nameEl.innerText = "User";
+
+            const now = new Date();
+            const timeElements = document.querySelectorAll(".transaction-time");
+            const timeOptions = {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+            };
+            const formattedTime = now.toLocaleTimeString("en-US", timeOptions);
+            timeElements.forEach((el) => {
+              el.innerText = formattedTime;
+            });
           }
-          timeElements.forEach((el) => {
-            el.innerText = savedTime;
-          });
-        }
+        });
 
         // --- Navigation Animation Logic ---
         const navItems = document.querySelectorAll(".nav-item");

