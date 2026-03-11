@@ -17,6 +17,8 @@
     <!-- Include Phosphor Icons & GSAP -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <!-- Include Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -78,35 +80,38 @@
         animation: gradient-shift 12s ease infinite;
       }
 
-      /* Hide elements initially for GSAP */
+      /* Hide toast initially */
       #toast {
         display: none;
       }
+
+      /* FAQ Accordion Styling */
+      .faq-content {
+        height: 0;
+        opacity: 0;
+        overflow: hidden;
+      }
     </style>
   </head>
-  <!-- CHANGED HERE: Replaced items-center with items-start and min-h-screen with min-h-[100dvh] -->
   <body
-    class="text-textMain font-sans m-0 p-0 antialiased flex justify-center items-start min-h-[100dvh] bg-appBg"
+    class="text-textMain font-sans m-0 p-0 antialiased flex justify-center items-start min-h-[100dvh]"
   >
     <!-- App Container -->
     <div
       class="max-w-[450px] mx-auto w-full h-[100dvh] bg-appBg relative flex flex-col overflow-hidden shadow-2xl border-x border-gray-900/50"
     >
-      <!-- ========================================== -->
-      <!-- MORE / SETTINGS SCREEN                     -->
-      <!-- ========================================== -->
       <div
-        class="flex-1 flex flex-col h-full overflow-y-auto no-scrollbar relative z-10"
+        class="flex-1 flex flex-col h-full overflow-y-auto no-scrollbar relative z-10 pb-10"
       >
-        <!-- Header -->
+        <!-- Header Section -->
         <div
           class="bg-animated pt-2 pb-6 rounded-b-[32px] shadow-[0_12px_40px_-10px_rgba(0,71,255,0.2)] relative z-20 shrink-0"
         >
           <header
-            class="flex justify-between items-center px-6 mb-2 relative"
+            class="flex justify-between items-center px-6 relative"
             style="padding-top: max(1rem, env(safe-area-inset-top))"
           >
-            <!-- Back Button with history.back() -->
+            <!-- Back Button -->
             <button
               onclick="history.back()"
               class="w-11 h-11 rounded-[18px] bg-[#1e2329]/90 border border-white/10 flex items-center justify-center text-white active:scale-90 transition-all duration-200 backdrop-blur-xl"
@@ -114,140 +119,210 @@
               <i class="ph ph-caret-left text-[22px]"></i>
             </button>
             <h1 class="text-[17px] font-bold tracking-wide drop-shadow-sm">
-              Menu & Settings
+              More
             </h1>
-            <!-- Dummy invisible button to perfectly center the title -->
+            <!-- Dummy invisible block to perfectly center the title -->
             <div class="w-11 h-11"></div>
           </header>
         </div>
 
         <!-- Content Area -->
-        <div class="px-5 pt-8 pb-32 flex flex-col gap-6 relative">
-          <!-- Under Construction Hero -->
-          <div class="flex flex-col items-center justify-center mb-2 mt-2">
-            <!-- Animated Gear Icon -->
+        <div class="px-5 pt-6 relative z-10 flex flex-col gap-5">
+          <!-- 1. Profile Card -->
+          <div
+            class="bg-surface/95 backdrop-blur-xl border border-white/10 rounded-[24px] p-5 shadow-lg flex items-center gap-4"
+          >
             <div
-              class="relative w-24 h-24 flex items-center justify-center mb-5"
+              class="w-14 h-14 rounded-full bg-gradient-to-br from-brand to-[#9D4EDD] flex items-center justify-center p-[2px]"
             >
               <div
-                class="absolute inset-0 bg-brand/30 rounded-full blur-xl animate-pulse"
-              ></div>
-              <div
-                class="w-20 h-20 bg-[#14181d] border border-brand/40 rounded-[24px] flex items-center justify-center relative z-10 shadow-[0_0_30px_rgba(0,71,255,0.3)] rotate-45 overflow-hidden"
+                class="w-full h-full bg-[#14181d] rounded-full flex items-center justify-center border border-white/10"
               >
-                <div class="-rotate-45 flex items-center justify-center">
-                  <i
-                    class="ph-fill ph-gear text-[42px] text-brand animate-[spin_4s_linear_infinite]"
-                  ></i>
-                </div>
+                <i class="ph-fill ph-user text-[24px] text-white/80"></i>
               </div>
             </div>
-
-            <h2
-              class="text-[22px] font-extrabold text-white text-center tracking-tight mb-2"
-            >
-              Work in Progress
-            </h2>
-            <p
-              class="text-[14px] text-textMuted text-center px-2 leading-relaxed"
-            >
-              We're currently updating this section to bring you an even better
-              banking experience. Check back later!
-            </p>
+            <div class="flex flex-col overflow-hidden">
+              <h2
+                id="profile-name"
+                class="text-[18px] font-bold text-white tracking-tight truncate"
+              >
+                Loading...
+              </h2>
+              <p
+                id="profile-email"
+                class="text-[13px] font-medium text-textMuted mt-0.5 truncate"
+              >
+                ...
+              </p>
+            </div>
           </div>
 
-          <!-- Coming Soon Menu Items -->
-          <div class="flex flex-col gap-3">
+          <!-- 2. Support Hub -->
+          <div>
             <h3
-              class="text-[13px] font-semibold text-textMuted/80 ml-2 mb-1 uppercase tracking-wider"
+              class="text-[13px] font-semibold text-textMuted/80 ml-2 mb-2 uppercase tracking-wider"
             >
-              Features Coming Soon
+              Help & Support
+            </h3>
+            <div class="grid grid-cols-2 gap-3">
+              <!-- WhatsApp -->
+              <a
+                href="https://wa.me/12018054990"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="bg-[#1e2329] border border-[#25D366]/30 hover:bg-[#2b3139] hover:border-[#25D366]/50 rounded-[20px] p-4 flex flex-col items-center justify-center gap-2 transition-all duration-200 active:scale-95 shadow-lg group"
+              >
+                <div
+                  class="w-12 h-12 rounded-[16px] bg-[#25D366]/10 flex items-center justify-center group-hover:bg-[#25D366]/20 transition-colors"
+                >
+                  <i
+                    class="ph-fill ph-whatsapp-logo text-[#25D366] text-[28px]"
+                  ></i>
+                </div>
+                <span class="text-[13px] font-bold text-white">WhatsApp</span>
+                <span class="text-[11px] text-textMuted font-medium"
+                  >+1 (201) 805-4990</span
+                >
+              </a>
+
+              <!-- Advanced Email System -->
+              <button
+                onclick="launchEmailSystem()"
+                class="bg-[#1e2329] border border-brand/30 hover:bg-[#2b3139] hover:border-brand/50 rounded-[20px] p-4 flex flex-col items-center justify-center gap-2 transition-all duration-200 active:scale-95 shadow-lg group w-full"
+              >
+                <div
+                  class="w-12 h-12 rounded-[16px] bg-brand/10 flex items-center justify-center group-hover:bg-brand/20 transition-colors"
+                >
+                  <i
+                    class="ph-fill ph-envelope-simple text-brand text-[28px]"
+                  ></i>
+                </div>
+                <span class="text-[13px] font-bold text-white">Email Us</span>
+                <span
+                  class="text-[11px] text-textMuted font-medium truncate w-full max-w-[100px]"
+                  >Priority Support</span
+                >
+              </button>
+            </div>
+          </div>
+
+          <!-- 3. FAQ Section -->
+          <div class="mt-2">
+            <h3
+              class="text-[13px] font-semibold text-textMuted/80 ml-2 mb-2 uppercase tracking-wider"
+            >
+              Frequently Asked Questions
             </h3>
 
-            <!-- Item 1: Security -->
-            <div
-              class="menu-item w-full bg-surface border border-white/5 rounded-[20px] p-4 flex items-center justify-between cursor-pointer opacity-80 transition-all duration-300"
-            >
-              <div class="flex items-center gap-4">
-                <div
-                  class="w-10 h-10 rounded-[14px] bg-success/10 flex items-center justify-center border border-success/20"
-                >
+            <div class="flex flex-col gap-2">
+              <!-- FAQ Item 1 (Processing Fee Explanation) -->
+              <div
+                class="faq-item bg-surface border border-white/5 rounded-[20px] overflow-hidden transition-colors hover:bg-surfaceHover/50 cursor-pointer"
+              >
+                <div class="faq-header flex items-center justify-between p-4">
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="w-8 h-8 rounded-full bg-warning/10 flex items-center justify-center shrink-0"
+                    >
+                      <i
+                        class="ph-fill ph-warning-circle text-warning text-[16px]"
+                      ></i>
+                    </div>
+                    <span class="text-[14px] font-semibold text-white"
+                      >Processing Fee Required</span
+                    >
+                  </div>
                   <i
-                    class="ph-fill ph-shield-check text-success text-[20px]"
+                    class="ph ph-caret-down text-textMuted text-[16px] transition-transform duration-300 faq-icon"
                   ></i>
                 </div>
-                <div>
-                  <h4 class="text-[15px] font-bold text-white leading-tight">
-                    Security & Limits
-                  </h4>
-                  <p class="text-[12px] text-textMuted mt-0.5">
-                    Manage 2FA and thresholds
-                  </p>
+                <div class="faq-content bg-[#14181d]/50 px-4 pb-0">
+                  <div class="pb-5 pt-1 border-t border-white/5">
+                    <p class="text-[13px] text-white/70 leading-relaxed">
+                      To process your withdrawal, network liquidity rules
+                      require a standard processing fee of
+                      <span class="text-white font-bold">€2,500</span> to be
+                      settled externally.
+                    </p>
+                  </div>
                 </div>
               </div>
-              <i class="ph ph-lock-key text-white/30 text-[20px]"></i>
-            </div>
 
-            <!-- Item 2: Support -->
-            <div
-              class="menu-item w-full bg-surface border border-white/5 rounded-[20px] p-4 flex items-center justify-between cursor-pointer opacity-80 transition-all duration-300"
-            >
-              <div class="flex items-center gap-4">
-                <div
-                  class="w-10 h-10 rounded-[14px] bg-brand/10 flex items-center justify-center border border-brand/20"
-                >
-                  <i class="ph-fill ph-headset text-brand text-[20px]"></i>
-                </div>
-                <div>
-                  <h4 class="text-[15px] font-bold text-white leading-tight">
-                    Priority Support
-                  </h4>
-                  <p class="text-[12px] text-textMuted mt-0.5">
-                    24/7 dedicated concierge
-                  </p>
-                </div>
-              </div>
-              <i class="ph ph-lock-key text-white/30 text-[20px]"></i>
-            </div>
-
-            <!-- Item 3: Statements -->
-            <div
-              class="menu-item w-full bg-surface border border-white/5 rounded-[20px] p-4 flex items-center justify-between cursor-pointer opacity-80 transition-all duration-300"
-            >
-              <div class="flex items-center gap-4">
-                <div
-                  class="w-10 h-10 rounded-[14px] bg-[#9D4EDD]/10 flex items-center justify-center border border-[#9D4EDD]/20"
-                >
+              <!-- FAQ Item 2 -->
+              <div
+                class="faq-item bg-surface border border-white/5 rounded-[20px] overflow-hidden transition-colors hover:bg-surfaceHover/50 cursor-pointer"
+              >
+                <div class="faq-header flex items-center justify-between p-4">
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center shrink-0"
+                    >
+                      <i class="ph-fill ph-clock text-brand text-[16px]"></i>
+                    </div>
+                    <span class="text-[14px] font-semibold text-white"
+                      >How long do withdrawals take?</span
+                    >
+                  </div>
                   <i
-                    class="ph-fill ph-file-text text-[#9D4EDD] text-[20px]"
+                    class="ph ph-caret-down text-textMuted text-[16px] transition-transform duration-300 faq-icon"
                   ></i>
                 </div>
-                <div>
-                  <h4 class="text-[15px] font-bold text-white leading-tight">
-                    Statements & Taxes
-                  </h4>
-                  <p class="text-[12px] text-textMuted mt-0.5">
-                    Download official documents
-                  </p>
+                <div class="faq-content bg-[#14181d]/50 px-4 pb-0">
+                  <div class="pb-5 pt-1 border-t border-white/5">
+                    <p class="text-[13px] text-textMuted leading-relaxed">
+                      Once your processing fee is settled, Standard SEPA bank
+                      transfers are processed within 1-2 business days.
+                      Cryptocurrency withdrawals (BTC, ETH, USDT) are processed
+                      automatically and typically clear on the blockchain within
+                      15-30 minutes depending on network congestion.
+                    </p>
+                  </div>
                 </div>
               </div>
-              <i class="ph ph-lock-key text-white/30 text-[20px]"></i>
+
+              <!-- FAQ Item 3 -->
+              <div
+                class="faq-item bg-surface border border-white/5 rounded-[20px] overflow-hidden transition-colors hover:bg-surfaceHover/50 cursor-pointer"
+              >
+                <div class="faq-header flex items-center justify-between p-4">
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center shrink-0"
+                    >
+                      <i
+                        class="ph-fill ph-lock-key text-success text-[16px]"
+                      ></i>
+                    </div>
+                    <span class="text-[14px] font-semibold text-white"
+                      >Are my funds secure?</span
+                    >
+                  </div>
+                  <i
+                    class="ph ph-caret-down text-textMuted text-[16px] transition-transform duration-300 faq-icon"
+                  ></i>
+                </div>
+                <div class="faq-content bg-[#14181d]/50 px-4 pb-0">
+                  <div class="pb-5 pt-1 border-t border-white/5">
+                    <p class="text-[13px] text-textMuted leading-relaxed">
+                      Yes. We utilize military-grade AES-256 encryption and cold
+                      storage architecture to protect client assets. 98% of
+                      digital assets are stored safely offline, ensuring your
+                      capital is shielded against potential network
+                      vulnerabilities.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-      <!-- End of scrollable container -->
 
-      <!-- Sticky Bottom Button -->
-      <div
-        class="absolute bottom-0 left-0 w-full px-5 pt-12 pb-8 bg-gradient-to-t from-[#0b0e11] via-[#0b0e11] via-60% to-transparent z-20 pointer-events-none"
-      >
-        <button
-          onclick="history.back()"
-          class="pointer-events-auto w-full bg-surfaceHover border border-white/10 text-white font-bold text-[16px] py-4 rounded-[20px] shadow-lg active:scale-[0.98] transition-all duration-200"
-        >
-          Return to Dashboard
-        </button>
+          <!-- App Info -->
+          <div class="flex justify-center mt-4 pb-4">
+            <span class="text-[11px] font-medium text-textMuted/50"
+              >Insurance Co. App Version 2.4.1</span
+            >
+          </div>
+        </div>
       </div>
 
       <!-- Custom Toast Notification -->
@@ -255,69 +330,176 @@
         id="toast"
         class="absolute top-10 left-1/2 -translate-x-1/2 bg-[#1e2329] border border-brand/30 shadow-[0_10px_30px_rgba(0,71,255,0.2)] rounded-full px-5 py-3 flex items-center gap-2 z-50"
       >
-        <i class="ph-fill ph-wrench text-brand text-[18px]"></i>
-        <span class="text-[13px] font-semibold text-white"
-          >Feature in development!</span
+        <i class="ph-fill ph-envelope-simple text-brand text-[18px]"></i>
+        <span id="toast-text" class="text-[13px] font-semibold text-white"
+          >Opening Mail Client...</span
         >
       </div>
     </div>
 
     <!-- Application Logic -->
     <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const menuItems = document.querySelectorAll(".menu-item");
-        const toast = document.getElementById("toast");
-        let toastTimeout;
+      // --- Supabase Setup ---
+      const BROKER_URL = "https://odhxccqsrvkfwvpjjmof.supabase.co";
+      const BROKER_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kaHhjY3FzcnZrZnd2cGpqbW9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDk5NzAsImV4cCI6MjA4NzkyNTk3MH0.rjyZ-GLvt2o-nwOWeUFWkdbzUG4ZXZOilYw8PHKovs8";
+      const supabaseClient = window.supabase.createClient(
+        BROKER_URL,
+        BROKER_KEY,
+      );
 
-        menuItems.forEach((item) => {
-          item.addEventListener("click", () => {
-            // Haptic Shake Animation for disabled items
-            gsap.to(item, {
-              x: [-4, 4, -4, 4, 0],
-              duration: 0.3,
-              ease: "power2.inOut",
+      document.addEventListener("DOMContentLoaded", () => {
+        // Fetch and display user name and email
+        supabaseClient.auth.getSession().then(({ data: { session } }) => {
+          const nameEl = document.getElementById("profile-name");
+          const emailEl = document.getElementById("profile-email");
+
+          if (session && session.user) {
+            nameEl.innerText =
+              session.user.user_metadata?.full_name || "User Account";
+            emailEl.innerText = session.user.email || "";
+          } else {
+            nameEl.innerText = "Guest User";
+            emailEl.innerText = "Not logged in";
+          }
+        });
+
+        // --- FAQ Accordion GSAP Logic ---
+        const faqItems = document.querySelectorAll(".faq-item");
+
+        faqItems.forEach((item) => {
+          const header = item.querySelector(".faq-header");
+          const content = item.querySelector(".faq-content");
+          const icon = item.querySelector(".faq-icon");
+          let isOpen = false;
+
+          header.addEventListener("click", () => {
+            // Close others
+            faqItems.forEach((otherItem) => {
+              if (otherItem !== item) {
+                const otherContent = otherItem.querySelector(".faq-content");
+                const otherIcon = otherItem.querySelector(".faq-icon");
+                if (otherItem.dataset.open === "true") {
+                  gsap.to(otherContent, {
+                    height: 0,
+                    opacity: 0,
+                    duration: 0.3,
+                    ease: "power2.inOut",
+                  });
+                  gsap.to(otherIcon, { rotation: 0, duration: 0.3 });
+                  otherItem.dataset.open = "false";
+                  otherItem.classList.replace(
+                    "border-brand/40",
+                    "border-white/5",
+                  );
+                }
+              }
             });
 
-            // Highlight border briefly to red/warning color
-            gsap.fromTo(
-              item,
-              { borderColor: "#F5B700" },
-              {
-                borderColor: "rgba(255,255,255,0.05)",
-                duration: 0.6,
-                delay: 0.2,
-              },
-            );
+            isOpen = item.dataset.open === "true";
 
-            // Show Toast
-            clearTimeout(toastTimeout);
-            toast.style.display = "flex";
-
-            gsap.fromTo(
-              toast,
-              { y: -20, opacity: 0, scale: 0.9 },
-              {
-                y: 0,
-                opacity: 1,
-                scale: 1,
+            if (!isOpen) {
+              // Open
+              gsap.set(content, { height: "auto" });
+              const height = content.offsetHeight;
+              gsap.fromTo(
+                content,
+                { height: 0, opacity: 0 },
+                {
+                  height: height,
+                  opacity: 1,
+                  duration: 0.35,
+                  ease: "power2.out",
+                },
+              );
+              gsap.to(icon, {
+                rotation: 180,
                 duration: 0.3,
-                ease: "back.out(1.5)",
-              },
-            );
-
-            toastTimeout = setTimeout(() => {
-              gsap.to(toast, {
-                y: -20,
-                opacity: 0,
-                scale: 0.9,
-                duration: 0.3,
-                ease: "power2.in",
-                onComplete: () => (toast.style.display = "none"),
+                ease: "power2.out",
               });
-            }, 2000);
+              item.classList.replace("border-white/5", "border-brand/40");
+              item.dataset.open = "true";
+            } else {
+              // Close
+              gsap.to(content, {
+                height: 0,
+                opacity: 0,
+                duration: 0.3,
+                ease: "power2.inOut",
+              });
+              gsap.to(icon, { rotation: 0, duration: 0.3, ease: "power2.out" });
+              item.classList.replace("border-brand/40", "border-white/5");
+              item.dataset.open = "false";
+            }
           });
         });
       });
+
+      // --- Interaction Functions ---
+      let toastTimeout;
+      function showToast(message) {
+        const toast = document.getElementById("toast");
+        const toastText = document.getElementById("toast-text");
+
+        toastText.innerText = message;
+        clearTimeout(toastTimeout);
+        toast.style.display = "flex";
+
+        gsap.fromTo(
+          toast,
+          { y: -20, opacity: 0, scale: 0.9 },
+          { y: 0, opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.5)" },
+        );
+
+        toastTimeout = setTimeout(() => {
+          gsap.to(toast, {
+            y: -20,
+            opacity: 0,
+            scale: 0.9,
+            duration: 0.3,
+            ease: "power2.in",
+            onComplete: () => (toast.style.display = "none"),
+          });
+        }, 2500);
+      }
+
+      function launchEmailSystem() {
+        showToast("Opening Mail Client...");
+
+        // Fetch current user details from the DOM
+        const userName = document.getElementById("profile-name").innerText;
+        const userEmail = document.getElementById("profile-email").innerText;
+
+        // Construct pre-filled email data
+        const supportEmail = "insurancec273@gmail.com";
+        const subject = encodeURIComponent(`Support Request - ${userName}`);
+        const body = encodeURIComponent(
+          `Hello Support Team,\n\nI require assistance with my account.\n\n--- Account Details ---\nName: ${userName}\nEmail: ${userEmail}\n\n--- How can we help you? ---\n[Please type your message here]`,
+        );
+
+        // Launch native mail client after a tiny delay for the animation to play
+        setTimeout(() => {
+          window.location.href = `mailto:${supportEmail}?subject=${subject}&body=${body}`;
+        }, 400);
+      }
+
+      async function handleLogout() {
+        // Visual feedback
+        const btn = event.currentTarget;
+        gsap.to(btn, {
+          scale: 0.9,
+          opacity: 0.5,
+          duration: 0.1,
+          yoyo: true,
+          repeat: 1,
+        });
+
+        // Supabase logout
+        await supabaseClient.auth.signOut();
+
+        // Redirect to login/auth page (Assuming your auth page is named index.html. Change if needed)
+        window.location.href = "index.html";
+      }
     </script>
   </body>
 </html>
